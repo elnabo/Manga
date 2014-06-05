@@ -1,8 +1,12 @@
 package web;
 
+
+import db.Manga;
+
 import haxe.Http;
 import haxe.io.Bytes;
 import haxe.io.BytesBuffer;
+import sys.db.Manager;
 import sys.io.File;
 import sys.io.FileOutput;
 import sys.FileSystem;
@@ -123,11 +127,27 @@ class Download
 	
 	public static function download(manga:String)
 	{
-		helper.manga = manga;
-		trace("downloading",manga);
-		var chap:Int = helper.lastChapter;
+		var helper = Type.createInstance(Type.getClass(Download.helper), [manga]);
+		manga = manga.toLowerCase().split(" ").join("_");
+
+		var db_value:Manga = null;
+		for ( res in Manga.manager.search($name == manga))
+		{
+			db_value = res;
+		}
+		
+		if (db_value == null)
+		{
+			db_value = new Manga(manga,helper.lastChapter);
+			db_value.insert();
+		}
+		
+		var count = 0;		
+		var chap:Int = db_value.lastChapterDownloaded + 1;
+		
 		while (helper.doesChapterExists(chap))
 		{
+			trace(helper.doesChapterExists(chap+1), chap+1);
 			var directory:String = manga+"/"+StringTools.lpad(""+chap,"0",4);
 			FileSystem.createDirectory(directory);
 			try
@@ -151,6 +171,15 @@ class Download
 					}
 				}
 				chap++;
+				count++;
+				db_value.lastChapterDownloaded ++;
+				
+				if (count > 3)
+				{
+					count = 0;
+					db_value.update();
+				}
+				
 			}
 			catch (e : Dynamic)
 			{
@@ -158,6 +187,8 @@ class Download
 				break;
 			}
 		}
+		
+		db_value.update();
 	}
 }
 

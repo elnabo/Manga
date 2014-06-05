@@ -5,6 +5,10 @@ import haxe.Http;
 class MangaReaderPlugin extends Plugin
 {
 	public static var mainURL(default,null):String = "http://www.mangareader.net/";
+	override private function set_manga(value:String):String
+	{
+		return super.set_manga(value.toLowerCase().split(" ").join("-"));
+	}
 	private static var imgRegex:EReg = new EReg("<img.*?\"(http.*?)\"","");
 	
 	public function new(?manga:String=null)
@@ -26,8 +30,8 @@ class MangaReaderPlugin extends Plugin
 	{
 		try
 		{
-			var doc:String = Http.requestUrl(mainURL+manga+"/"+(chap+1)+"/2");
-			return (doc.indexOf("<h1>404 Not Found</h1>",doc.length-25) == -1);
+			var doc:String = Http.requestUrl(mainURL+manga+"/"+chap);
+			return (doc.indexOf("is not published yet") == -1);
 		}
 		catch ( _ : Dynamic)
 		{

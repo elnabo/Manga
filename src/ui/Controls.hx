@@ -6,6 +6,7 @@ import haxe.ui.toolkit.controls.Button;
 import haxe.ui.toolkit.controls.TextInput;
 import haxe.ui.toolkit.events.UIEvent;
 
+import db.Manga;
 import web.Download;
 
 #if cpp
@@ -16,12 +17,15 @@ import neko.vm.Thread;
 
 class Controls extends VBox
 {
+	var viewer:ImageViewer;
 	var txtInput:TextInput;
 	var button:Button;
 	
-	public function new()
+	public function new(?viewer:ImageViewer)
 	{
 		super();
+		this.viewer = viewer;
+		
 		txtInput = new TextInput();
 		button = new Button();
 		button.text="Download";
@@ -29,10 +33,19 @@ class Controls extends VBox
 			{
 				Thread.create(function(){
 				Download.download(txtInput.text);});
-				trace("need to download",txtInput.text);
 			});
+		
+		
+		var l = new DropDownList();
+		l.addEventListener(UIEvent.CHANGE, function(e:UIEvent)
+		{
+			var self = e.getComponentAs(DropDownList);
+			var manga = Manga.get(self.text);
+			viewer.display(self.text,manga.currentChapterRead,manga.currentPageRead);
+		});
 		
 		addChild(txtInput);
 		addChild(button);
+		addChild(l);
 	}
 }

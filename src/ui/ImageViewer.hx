@@ -1,5 +1,7 @@
 package ui;
 
+import db.Manga;
+
 import sys.FileSystem;
 
 import haxe.ui.toolkit.core.DisplayObjectContainer;
@@ -18,6 +20,7 @@ class ImageViewer extends VBox
 {
 	var _img:Image = new Image();
 	var _manga:String;
+	var _mangaDB:Manga;
 	var _chap:Int;
 	var _page:Int;
 	
@@ -89,9 +92,26 @@ class ImageViewer extends VBox
 			_imgStartX = 0;
 			_imgStartY = 0;
 			_currentScale = 1;
+			if (_manga != manga)
+			{
+				if (_mangaDB != null)
+				{
+					_mangaDB.update();
+				}
+				_mangaDB = Manga.get(manga);
+			}
 			_manga = manga;
+			if (_chap != chap && _chap != null)
+			{
+				_mangaDB.lastChapterRead = _chap;
+			}
 			_chap = chap;
 			_page = page;
+			if (_mangaDB != null)
+			{
+				_mangaDB.currentChapterRead = _chap;
+				_mangaDB.currentPageRead = _page;
+			}
 		}
 	}
 	

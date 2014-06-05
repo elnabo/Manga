@@ -11,7 +11,7 @@ class Plugin
 	
 	public var manga(get,set):String;
 	private inline function get_manga(){return _manga;}
-	private inline function set_manga(value:String) {_manga = value; findLastChapterLocal(); return _manga;}
+	private function set_manga(value:String) {_manga = value; findLastChapterLocal(); return _manga;}
 	
 	public var lastChapter(default,null):Int;
 	
@@ -19,7 +19,7 @@ class Plugin
 	{
 		if (manga != null && manga!="")
 		{
-			_manga = manga;
+			this.manga = manga;
 			findLastChapterLocal();
 		}
 	}
@@ -28,7 +28,7 @@ class Plugin
 	{		
 		if (!FileSystem.exists(manga) || !FileSystem.isDirectory(manga))
 		{
-			lastChapter = 1;
+			lastChapter = 0;
 			return ;
 		}
 			

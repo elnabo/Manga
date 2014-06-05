@@ -1,16 +1,15 @@
 package ui;
 
+import db.Manga;
+
 import haxe.ui.toolkit.core.Toolkit;
 import haxe.ui.toolkit.core.Root;
+import haxe.ui.toolkit.events.UIEvent;
 import haxe.ui.toolkit.style.Style;
 import haxe.ui.toolkit.style.StyleManager;
 import haxe.ui.toolkit.containers.HBox;
-//~ import haxe.ui.toolkit.controls.Button;
-//~ import haxe.ui.toolkit.controls.Image;
-//~ import flash.events.MouseEvent;
-//~ import flash.display.BitmapData;
-//~ import haxe.ui.toolkit.core.Macros;
 
+import sys.db.Manager;
 
 class UIMain
 {
@@ -37,20 +36,33 @@ class UIMain
 					autoSizeSet:false
 				}));
 				
+				StyleManager.instance.addStyle(".dropdown", new Style({
+					width: root.width-400,
+					selectionMethod: "default"
+				}));
+				
 				var box = new HBox();
 				
 				imgViewer = new ImageViewer();
 				imgViewer.styleName = "imgViewer";
 				box.addChild(imgViewer);
-				//~ root.addChild(imgViewer);
 			
-				var controls = new Controls();
+				var controls = new Controls(imgViewer);
 				controls.styleName = "controls";
 				box.addChild(controls);
 				
+				box.addEventListener(UIEvent.DEACTIVATE, function (e)
+				{
+					trace("bye");
+					for (m in Manga.manager.all())
+					{
+						m.update();
+					}
+					Manager.cleanup();
+				});
+				
 				root.addChild(box);
 			});
-		imgViewer.display("phantom-brave-ivoire-monogatari",1,1);
 	}
 	
 }
