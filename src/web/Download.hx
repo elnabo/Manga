@@ -97,7 +97,6 @@ class Download
 		}
 		catch (e:Dynamic)
 		{
-			trace(e);
 			throw e;
 		}
 	}

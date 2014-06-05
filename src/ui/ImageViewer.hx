@@ -42,8 +42,7 @@ class ImageViewer extends VBox
 		_img.addEventListener(MouseEvent.MOUSE_WHEEL, function(e)
 			{
 				_currentScale = clamp(_currentScale + e.delta/20, 1, 2);
-				if (Math.abs(_currentScale-1) > 0.01)
-					_scaledImage = zoom(_currentScale);
+				_scaledImage = zoom(_currentScale);
 				scroll(0,0);
 			});
 			
@@ -126,18 +125,42 @@ class ImageViewer extends VBox
 	
 	private function get(rec:Rectangle):BitmapData
 	{
+		var newRecW = Math.min(rec.width, _scaledImage.width);
+		var newRecH = Math.min(rec.height,_scaledImage.height);
+		var newRecX = rec.x;
+		var newRecY = rec.y;
+		if (rec.x + newRecW > _scaledImage.width)
+			newRecX = Std.int(Math.max(0,_scaledImage.width - newRecW));
+		
+		if (rec.y + newRecH > _scaledImage.height)
+			newRecY = Std.int(Math.max(0,_scaledImage.height - newRecH));
+		rec = new Rectangle(newRecX,newRecY,newRecW,newRecH);
+		
 		var res = new BitmapData(Std.int(rec.width), Std.int(rec.height));
 		if ( Math.abs(_currentScale - 1) < 0.01)
+		{
 			res.copyPixels(_fullImage,rec,new Point());
+		}
 		else
+		{
 			res.copyPixels(_scaledImage,rec,new Point());
+		}
 		return res;
 	}
 	
 	private function scroll(dx:Int, dy:Int):Void
 	{
-		_imgStartX = Std.int(clamp(_imgStartX+dx, 0, _fullImage.width-width/_currentScale));
-		_imgStartY = Std.int(clamp(_imgStartY+dy, 0, _fullImage.height-height/_currentScale));
+		
+		if (_scaledImage.width <= width)
+			_imgStartX = 0;
+		else
+			_imgStartX = Std.int(clamp(_imgStartX+dx, 0, (_scaledImage.width-width)/_currentScale));
+			
+		if (_scaledImage.height <= height)
+			_imgStartY = 0;
+		else
+			_imgStartY = Std.int(clamp(_imgStartY+dy, 0, (_scaledImage.height-height)/_currentScale));
+			
 		_img.resource = get(new Rectangle(Math.floor(_imgStartX*_currentScale),Math.floor(_imgStartY*_currentScale),width,height));
 	}
 	

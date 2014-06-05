@@ -1,4 +1,4 @@
-import plugin.MangaReaderPlugin;
+import plugin.*;
 import ui.UIMain;
 import web.Download;
 
@@ -15,16 +15,17 @@ class Main
 	{
 		//~ var url:String = "http://www.mangareader.net/billy-bat/1/1";
 		new UIMain();
+		return;
 		var url:String = "http://www.mangareader.net/";
 		var manga:String = "phantom-brave-ivoire-monogatari";
 		Sqlite.open("test.db");
 		
-		var helper = new MangaReaderPlugin("phantom-brave-ivoire-monogatari");
+		var helper:Plugin = new MangaReaderPlugin("phantom-brave-ivoire-monogatari");
+		//~ var helper:Plugin = new MangaDoomPlugin("phantom-brave-ivoire-monogatari");
 		
 		
-		return;
-		var chap:Int = 1;
-		while (helper.doesChapterExists(chap))
+		var chap:Int = 2;
+		while (helper.doesChapterExists(chap) && chap<7)
 		{
 			var directory:String = manga+"/"+StringTools.lpad(""+chap,"0",4);
 			FileSystem.createDirectory(directory);
@@ -36,7 +37,6 @@ class Main
 				{
 					try
 					{
-						//~ var imgURL:String = getImage(url+manga+"/"+chap+"/"+page, imgRegex);
 						var imgURL = helper.getImageURL(chap,page);
 						var imgType:String = imgURL.split(".").pop();
 						imgPath = directory+"/"+StringTools.lpad(""+page,"0",3)+"."+imgType;
