@@ -5,6 +5,9 @@ import haxe.io.Bytes;
 import haxe.io.BytesBuffer;
 import sys.io.File;
 import sys.io.FileOutput;
+import sys.FileSystem;
+
+import plugin.*;
 
 #if cpp
 import cpp.vm.Deque;
@@ -16,6 +19,8 @@ import neko.vm.Thread;
 
 class Download
 {
+	private static var helper:Plugin = new MangaReaderPlugin();
+	
 	/** Return the string name of the file. */
 	public static function image(url:String, to:String, ?maxConnections:Int=2)
 	{
@@ -114,6 +119,45 @@ class Download
 			&& headers.exists("Content-Length"))
 			return Std.parseInt(headers.get("Content-Length"));
 		return 0;
+	}
+	
+	public static function download(manga:String)
+	{
+		helper.manga = manga;
+		trace("downloading",manga);
+		var chap:Int = helper.lastChapter;
+		while (helper.doesChapterExists(chap))
+		{
+			var directory:String = manga+"/"+StringTools.lpad(""+chap,"0",4);
+			FileSystem.createDirectory(directory);
+			try
+			{
+				var page:Int = 1;
+				var imgPath:String;
+				while (true)
+				{
+					try
+					{
+						var imgURL = helper.getImageURL(chap,page);
+						var imgType:String = imgURL.split(".").pop();
+						imgPath = directory+"/"+StringTools.lpad(""+page,"0",3)+"."+imgType;
+						Download.image(imgURL,imgPath);
+						page++;
+					}
+					catch ( e : Dynamic )
+					{
+						trace(e,chap);
+						break;
+					}
+				}
+				chap++;
+			}
+			catch (e : Dynamic)
+			{
+				trace(e,chap);
+				break;
+			}
+		}
 	}
 }
 

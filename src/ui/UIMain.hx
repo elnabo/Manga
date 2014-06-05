@@ -29,15 +29,26 @@ class UIMain
 					autoSizeSet:false
 				}));
 				
-				//~ var box = new HBox();
-				//~ box.id = "imgViewer";
+				StyleManager.instance.addStyle("#controls, .controls", new Style({
+					width: root.width-400,
+					height: root.height,
+					backgroundColor:0x0000ff,
+					autoSize:false,
+					autoSizeSet:false
+				}));
+				
+				var box = new HBox();
 				
 				imgViewer = new ImageViewer();
 				imgViewer.styleName = "imgViewer";
-				root.addChild(imgViewer);
-				//~ box.addChild(imgViewer);
+				box.addChild(imgViewer);
+				//~ root.addChild(imgViewer);
 			
-				//~ root.addChild(box);
+				var controls = new Controls();
+				controls.styleName = "controls";
+				box.addChild(controls);
+				
+				root.addChild(box);
 			});
 		imgViewer.display("phantom-brave-ivoire-monogatari",1,1);
 	}

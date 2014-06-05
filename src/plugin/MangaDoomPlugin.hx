@@ -9,14 +9,14 @@ class MangaDoomPlugin extends Plugin
 	
 	private var regex:String;
 	
+	@override private inline function set_manga(value:String) {_manga = value; findLastChapterLocal(); imgRegex = new EReg("<img id.*?\"(http.*?)\".*?.*?wpm_nav_nxt = \"http://mangadoom.com/"+manga+"/([0-9]+)/","is"); return _manga;}
+	
 	
 	public function new(?manga:String=null)
 	{
 		super(manga);
 		if (manga != null)
-			//~ imgRegex = new EReg("<a.*? href=\"http://mangadoom.com/"+manga+"/([0-9]+)/>.*?<img.*?\"(http.*?)\"","im");
 			imgRegex = new EReg("<img id.*?\"(http.*?)\".*?.*?wpm_nav_nxt = \"http://mangadoom.com/"+manga+"/([0-9]+)/","is");
-			regex = "<img id.*?\"(http.*?)\"*?.*?wpm_nav_nxt = \"http://mangadoom.com/"+manga+"/([0-9]+)/";
 	}
 	
 	
