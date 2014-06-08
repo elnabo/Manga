@@ -1,6 +1,7 @@
 import db.*;
 import plugin.*;
-import ui.UIMain;
+//~ import ui.UIMain;
+import uiwaxe.UIMain;
 import web.Download;
 
 
@@ -10,7 +11,10 @@ import sys.db.Manager;
 import sys.db.TableCreate;
 import sys.db.Sqlite;
 
+import wx.App;
 
+
+//~ import lime.Lime;
 
 class Main
 {
@@ -19,16 +23,44 @@ class Main
 	public function new()
 	{
 		initDB();
+		//~ if (initDB())
 		new UIMain();
 		return;
 	}
 	
-	private static function initDB()
+	private function initDB()
 	{
-		Manager.cnx = Sqlite.open(db);
-		Manager.initialize();
-		if (!TableCreate.exists(Manga.manager))
-			TableCreate.create(Manga.manager);
+		try
+		{
+			Manager.cnx = Sqlite.open(db);
+			Manager.initialize();
+			if (!TableCreate.exists(Manga.manager))
+				TableCreate.create(Manga.manager);
+			return true;
+		}
+		catch ( e : Dynamic ) 
+		{
+			//~ var config = {
+			//~ host : this,
+			//~ fullscreen : false,
+			//~ resizable : false,
+			//~ borderless : false,
+			//~ antialiasing : 0,
+			//~ stencil_buffer : false,
+			//~ depth_buffer : false,
+			//~ vsync : false,
+			//~ multitouch_supported : false,
+			//~ multitouch : false,
+			//~ fps : 10,
+			//~ width : 100,
+			//~ height : 100,
+			//~ title : "Error"
+			//~ };
+			//~ var lime = new Lime();
+			//~ lime.init(this,config);
+			
+			return false;
+		}
 	}
 	
 	
@@ -47,6 +79,6 @@ class Main
 	
 	public static function main()
 	{
-		new Main();
+		App.boot(function(){new Main();});
 	}
 }
