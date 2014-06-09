@@ -4,40 +4,68 @@ import db.Manga;
 import sys.db.Manager;
 
 import wx.App;
+import wx.Dialog;
+import wx.EventID;
 import wx.FlexGridSizer;
 import wx.Frame;
+import wx.Menu;
+import wx.MenuBar;
 import wx.Sizer;
+import wx.Window;
 
 class UIMain
 {
-	var mFrame:Frame;
+	var imgViewer:ImageViewer;
 	
 	public function new()
 	{
 		var mFrame = Frame.create(null, null, "Manga", null, { width: 800, height: 600 });	
-		var imgViewer = new ImageViewer(mFrame,null,{x:0,y:0}, {width:600,height:600});
+		imgViewer = new ImageViewer(mFrame,null,{x:0,y:0}, {width:600,height:600});
 		
 		App.setTopWindow(mFrame);
 		mFrame.shown = true;
-		mFrame.onClose = function (_) 
-			{ 
-				for (m in Manga.manager.all())
-				{
-					m.update();
-				}
-				Manager.cleanup();
-				App.quit();
-			};
+		mFrame.onClose = close;
+			
+		var menu = new MenuBar();
+		var id = 0;
 		
-		var ctrl = new Controls(imgViewer,mFrame,null,{x:600,y:0}, {width:200,height:600});
+		var file = new Menu("",0);
+		file.append(id,"Open","Open something");
+		mFrame.handle(id++, function (_) {trace("rrr");});
 		
-		var sizer = FlexGridSizer.create(null,2);
+		file.append(id,"Exit","Exit the application");
+		mFrame.handle(id++, close);
+		menu.append(file,"File");
 		
-		sizer.add(imgViewer,0,0,0);
-		sizer.add(ctrl,1,Sizer.EXPAND|Sizer.ALIGN_TOP|Sizer.ALIGN_CENTER_HORIZONTAL,4);	
+		var manga = new Menu("",1);
+		manga.append(id,"Download", "Download a manga");
+		mFrame.handle(id++, function (_) 
+			{
+				var f = Dialog.create(mFrame,null,null,{width:300,height:300}, Dialog.DEFAULT_STYLE | Window.STAY_ON_TOP);
+			});
+		menu.append(manga,"Manga");
 		
-		sizer.fit(mFrame);
-		sizer.setSizeHints(mFrame);
-		mFrame.sizer = sizer;
+		
+
+		mFrame.menuBar = menu;
+		//~ var ctrl = new Controls(imgViewer,mFrame,null,{x:600,y:0}, {width:200,height:600});
+		//~ var sizer = FlexGridSizer.create(null,2);
+		//~ 
+		//~ sizer.add(imgViewer,0,0,0);
+		//~ sizer.add(ctrl,1,Sizer.EXPAND|Sizer.ALIGN_TOP|Sizer.ALIGN_CENTER_HORIZONTAL,4);	
+		//~ 
+		//~ sizer.fit(mFrame);
+		//~ sizer.setSizeHints(mFrame);
+		//~ mFrame.sizer = sizer;
+	}
+	
+	function close (_)
+	{
+		for (m in Manga.manager.all())
+		{
+			m.update();
+		}
+		Manager.cleanup();
+		App.quit();
 	}
 }

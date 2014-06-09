@@ -85,7 +85,8 @@ class ImageViewer extends Panel
 				scroll(0,0);
 			});
 			
-		display("remonster",1,1);
+		
+		_fullImage = _scaledImage = Image.getBlankImage(width,height);
 		
 		var szr = FlexGridSizer.create(1,1);
 		szr.add(this);
@@ -166,9 +167,16 @@ class ImageViewer extends Panel
 	
 	private function scroll(dx:Int, dy:Int)
 	{
-		_imgStartX = Std.int(clamp(_imgStartX + dx, -1*(_scaledImage.width - width), 0));
-		_imgStartY = Std.int(clamp(_imgStartY + dy, -1*(_scaledImage.height - height), 0));
-			
+		if (_scaledImage.width <= width)
+			_imgStartX = 0;
+		else
+			_imgStartX = Std.int(clamp(_imgStartX + dx, -1*(_scaledImage.width - width), 0));
+		
+		if (_scaledImage.height <= height)
+			_imgStartY = 0;
+		else
+			_imgStartY = Std.int(clamp(_imgStartY + dy, -1*(_scaledImage.height - height), 0));
+		
 		refresh();
 	}
 	
