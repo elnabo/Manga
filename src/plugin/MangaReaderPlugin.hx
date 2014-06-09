@@ -7,7 +7,7 @@ class MangaReaderPlugin extends Plugin
 	public static var mainURL(default,null):String = "http://www.mangareader.net/";
 	override private function set_manga(value:String):String
 	{
-		return super.set_manga(value.toLowerCase().split(" ").join("-"));
+		return super.set_manga(StringTools.trim(value).toLowerCase().split(" ").join("-"));
 	}
 	private static var imgRegex:EReg = new EReg("<img.*?\"(http.*?)\"","");
 	
@@ -37,5 +37,15 @@ class MangaReaderPlugin extends Plugin
 		{
 			return false;
 		}
+	}
+	
+	
+	override public function exists():Bool
+	{
+		var h = new Http(mainURL+manga);
+		var exist = true;
+		h.onError = function(_) { exist = false;};
+		h.request(null);
+		return exist;
 	}
 }

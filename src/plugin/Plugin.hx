@@ -11,7 +11,7 @@ class Plugin
 	
 	public var manga(get,set):String;
 	private inline function get_manga(){return _manga;}
-	private function set_manga(value:String) {_manga = value; findLastChapterLocal(); return _manga;}
+	private function set_manga(value:String) {_manga = StringTools.trim(value); findLastChapterLocal(); return _manga;}
 	
 	public var lastChapter(default,null):Int;
 	
@@ -19,7 +19,7 @@ class Plugin
 	{
 		if (manga != null && manga!="")
 		{
-			this.manga = manga;
+			this.manga = StringTools.trim(manga);
 			findLastChapterLocal();
 		}
 	}
@@ -50,6 +50,7 @@ class Plugin
 		
 	}
 	
-	public function getImageURL(chap:Int, page:Int):String {throw "not implemented"; return null;}
 	public function doesChapterExists(chap:Int):Bool {throw "not implemented"; return false;}
+	public function exists():Bool {throw "not implemented"; return false;}
+	public function getImageURL(chap:Int, page:Int):String {throw "not implemented"; return null;}
 }

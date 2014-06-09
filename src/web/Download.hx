@@ -127,7 +127,13 @@ class Download
 	
 	public static function download(manga:String)
 	{
+		manga = StringTools.trim(manga);
+		if (manga == "") 
+			return;
+			
 		var helper = Type.createInstance(Type.getClass(Download.helper), [manga]);
+		if (!helper.exists())
+			return;
 		manga = manga.toLowerCase().split(" ").join("_");
 
 		var db_value:Manga = null;
@@ -147,7 +153,6 @@ class Download
 		
 		while (helper.doesChapterExists(chap))
 		{
-			trace(helper.doesChapterExists(chap+1), chap+1);
 			var directory:String = manga+"/"+StringTools.lpad(""+chap,"0",4);
 			FileSystem.createDirectory(directory);
 			try
@@ -183,7 +188,6 @@ class Download
 			}
 			catch (e : Dynamic)
 			{
-				trace(e,chap);
 				break;
 			}
 		}

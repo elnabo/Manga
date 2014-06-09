@@ -63,6 +63,8 @@ class UIMain
 				
 				root.addChild(box);
 			});
+			
+			
 	}
 	
 }

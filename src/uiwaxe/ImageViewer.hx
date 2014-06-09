@@ -8,6 +8,7 @@ import wx.EventID;
 import wx.Image;
 import wx.Loader;
 import wx.Panel;
+import wx.FlexGridSizer;
 import wx.Window;
 
 import sys.FileSystem;
@@ -44,9 +45,9 @@ class ImageViewer extends Panel
 		 super(handle);
 		 onPaint = paintWindow;
 		 
-		 var size = (inSize == null) ? inParent.size : inSize;
-		 width = size.width;
-		 height = size.height;
+		 var s = (inSize == null) ? inParent.size : inSize;
+		 width = s.width;
+		 height = s.height;
 		 
 		 setHandler(EventID.LEFT_DOWN, function(e:Dynamic):Void 
 			{
@@ -60,10 +61,15 @@ class ImageViewer extends Panel
 					displayNextPage();
 				_changingPage = false;
 			});
+		 setHandler(EventID.RIGHT_UP, function(_):Void 
+			{
+				displayPreviousPage();
+			});
 		 setHandler(EventID.MOTION, function(e:Dynamic):Void 	
 			{
 				if (e.leftIsDown)
 				{
+					_changingPage = false;
 					var dx = Std.int((e.x - _lastMouseX)/_currentScale);
 					var dy = Std.int((e.y - _lastMouseY)/_currentScale);
 					scroll(dx,dy);
@@ -78,18 +84,14 @@ class ImageViewer extends Panel
 				zoom(_currentScale);
 				scroll(0,0);
 			});
+			
+		display("remonster",1,1);
+		
+		var szr = FlexGridSizer.create(1,1);
+		szr.add(this);
+		szr.fit(this);
+		sizer = szr;
 	}
-	
-	//~ public function displayImage()
-	//~ {
-		//~ var path = "1.jpg";
-		//~ if (FileSystem.exists(path) && !FileSystem.isDirectory(path))
-		//~ {
-			//~ _fullImage = Image.fromFile(path,wxBITMAP_TYPE_JPEG);
-			//~ _scaledImage = _fullImage;
-			//~ refresh();
-		//~ }
-	//~ }
 	
 	public function display(manga:String,chap:Int,page:Int)
 	{
@@ -126,18 +128,26 @@ class ImageViewer extends Panel
 		}
 	}
 	
-	private function displayPreviousPage(manga:String,chap:Int, page:Int)
+	private function displayPreviousPage()
 	{
 		if (_chap <= 1 && _page <= 1)
 			return;
 			
 		if (_page <= 1)
 		{
-			display(_manga,_chap-1,25);
+			display(_manga,_chap-1,getLastPageNumber(_manga,_chap-1));
 			return;
 		}
 		
 		display(_manga,_chap,_page-1);		
+	}
+	
+	private function getLastPageNumber(manga:String, chap:Int)
+	{
+		var path = manga+"/"+StringTools.lpad(""+chap,"0",4)+"/";
+		if (FileSystem.exists(path) && FileSystem.isDirectory(path))
+			return FileSystem.readDirectory(path).length;
+		return -1;
 	}
 	
 	private function displayNextPage()
@@ -177,7 +187,8 @@ class ImageViewer extends Panel
 	function paintWindow(dc:wx.DC)
 	{
 		dc.clear();
-		dc.drawBitmap(Bitmap.fromImage(_scaledImage),_imgStartX,_imgStartY, false);
+		if (_scaledImage != null)
+			dc.drawBitmap(Bitmap.fromImage(_scaledImage),_imgStartX,_imgStartY, false);
 	}
 	
 	private function clamp(value:Float, min:Float, max:Float):Float
@@ -188,16 +199,6 @@ class ImageViewer extends Panel
 			return max;
 		return value;
 	}
-	
-	//~ override public function refresh()
-	//~ {
-		//~ trace(Sys.time());
-		//~ if (Sys.time() - timestamp > 0.015)
-		//~ {
-			//~ super.refresh();
-			//~ timestamp = Sys.time();
-		//~ }
-	//~ }
 	
 	static var wx_window_create:Array<Dynamic>->Dynamic = Loader.load("wx_window_create",1);
 }

@@ -21,12 +21,12 @@ class ImageViewer extends VBox
 	var _img:Image = new Image();
 	var _manga:String;
 	var _mangaDB:Manga;
-	var _chap:Int;
-	var _page:Int;
+	var _chap:Int = -1;
+	var _page:Int = -1;
 	
 	var _mouseDown = false;
-	var _lastMouseX:Int;
-	var _lastMouseY:Int;
+	var _lastMouseX:Int = -1;
+	var _lastMouseY:Int = -1;
 	var _changingPage:Bool = false;
 	
 	var _windowWidth = flash.Lib.current.stage.stageWidth;
@@ -101,7 +101,7 @@ class ImageViewer extends VBox
 				_mangaDB = Manga.get(manga);
 			}
 			_manga = manga;
-			if (_chap != chap && _chap != null)
+			if (_chap != chap && _chap != -1)
 			{
 				_mangaDB.lastChapterRead = _chap;
 			}
