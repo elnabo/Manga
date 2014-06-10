@@ -23,7 +23,6 @@ class Main
 	public function new()
 	{
 		initDB();
-		//~ if (initDB())
 		new UIMain();
 		return;
 	}
@@ -40,39 +39,7 @@ class Main
 		}
 		catch ( e : Dynamic ) 
 		{
-			//~ var config = {
-			//~ host : this,
-			//~ fullscreen : false,
-			//~ resizable : false,
-			//~ borderless : false,
-			//~ antialiasing : 0,
-			//~ stencil_buffer : false,
-			//~ depth_buffer : false,
-			//~ vsync : false,
-			//~ multitouch_supported : false,
-			//~ multitouch : false,
-			//~ fps : 10,
-			//~ width : 100,
-			//~ height : 100,
-			//~ title : "Error"
-			//~ };
-			//~ var lime = new Lime();
-			//~ lime.init(this,config);
-			
-			return false;
-		}
-	}
-	
-	
-	public function chapterExists(url:String,manga:String,chap:Int):Bool
-	{
-		try
-		{
-			var doc:String = Http.requestUrl(url+manga+"/"+(chap+1)+"/2");
-			return (doc.indexOf("<h1>404 Not Found</h1>",doc.length-25) == -1);
-		}
-		catch ( _ : Dynamic)
-		{
+			trace(e);
 			return false;
 		}
 	}

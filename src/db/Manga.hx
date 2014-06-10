@@ -1,5 +1,6 @@
 package db;
 
+import sys.FileSystem;
 import sys.db.Manager;
 import sys.db.Object;
 import sys.db.Types;
@@ -13,6 +14,8 @@ class Manga extends Object
 	public var lastChapterRead:SSmallInt ;
 	public var currentPageRead:SSmallInt ;
 	public var currentChapterRead:SSmallInt ;
+	
+	private static var basePath:String = "";
 	
 	public function new(name:String,?lastChapterDownloaded:Int=0)
 	{
@@ -31,5 +34,15 @@ class Manga extends Object
 			return query.first();
 		return null;
 	}
+	
+	public function getChapterList():Array<String>
+	{
+		var path = basePath+name+"/";
+		return Lambda.array(Lambda.filter(
+			FileSystem.readDirectory(path),
+			function (e) {return FileSystem.isDirectory(path+e);}
+			));
+	}
+	
 	public static var manager = new Manager<Manga>(Manga);
 }

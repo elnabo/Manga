@@ -16,10 +16,11 @@ import wx.Window;
 class UIMain
 {
 	var imgViewer:ImageViewer;
+	var mFrame:Frame;
 	
 	public function new()
 	{
-		var mFrame = Frame.create(null, null, "Manga", null, { width: 800, height: 600 });	
+		mFrame = Frame.create(null, null, "Manga", null, { width: 800, height: 600 });	
 		imgViewer = new ImageViewer(mFrame,null,{x:0,y:0}, {width:600,height:600});
 		
 		App.setTopWindow(mFrame);
@@ -41,7 +42,12 @@ class UIMain
 		manga.append(id,"Download", "Download a manga");
 		mFrame.handle(id++, function (_) 
 			{
-				var f = Dialog.create(mFrame,null,null,{width:300,height:300}, Dialog.DEFAULT_STYLE | Window.STAY_ON_TOP);
+				new DownloadDialog(mFrame,null,"Download a manga",{width:300,height:200});
+			});
+		manga.append(id,"Read a manga", "");
+		mFrame.handle(id++, function (_) 
+			{
+				new ChooserDialog(imgViewer,mFrame,null,"Choose a manga",{width:300,height:200});
 			});
 		menu.append(manga,"Manga");
 		
@@ -67,5 +73,10 @@ class UIMain
 		}
 		Manager.cleanup();
 		App.quit();
+	}
+	
+	public function throwError(e:String)
+	{
+		
 	}
 }

@@ -21,9 +21,18 @@ import neko.vm.Deque;
 import neko.vm.Thread;
 #end
 
+class Error
+{
+	public static var tooManyActiveConnections(default,null):String = "Too many active connections";
+	public static var invalidName(default,null):String = "Invalid manga name";
+	public static var notAvailable(default,null):String = "This manga isn't available";
+}
+
 class Download
 {
 	private static var helper:Plugin = new MangaReaderPlugin();
+	private static var activeConnections:Int = 0;
+	private static var maxActiveConnections:Int = 2;
 	
 	/** Return the string name of the file. */
 	public static function image(url:String, to:String, ?maxConnections:Int=2)
@@ -125,8 +134,23 @@ class Download
 		return 0;
 	}
 	
+	public static function test(manga:String)
+	{
+		if (activeConnections >= maxActiveConnections)
+			throw Error.tooManyActiveConnections;//"Too many active connections";
+		manga = StringTools.trim(manga);
+		if (manga == "") 
+			throw Error.invalidName;//"Invalid manga name";
+			
+		var helper = Type.createInstance(Type.getClass(Download.helper), [manga]);
+		if (!helper.exists())
+			throw Error.notAvailable;//"This manga isn't available";
+	}
+	
 	public static function download(manga:String)
 	{
+		if (activeConnections >= maxActiveConnections)
+			return;
 		manga = StringTools.trim(manga);
 		if (manga == "") 
 			return;
@@ -134,6 +158,7 @@ class Download
 		var helper = Type.createInstance(Type.getClass(Download.helper), [manga]);
 		if (!helper.exists())
 			return;
+			
 		manga = manga.toLowerCase().split(" ").join("_");
 
 		var db_value:Manga = null;
@@ -150,6 +175,7 @@ class Download
 		
 		var count = 0;		
 		var chap:Int = db_value.lastChapterDownloaded + 1;
+		activeConnections++;
 		
 		while (helper.doesChapterExists(chap))
 		{
@@ -192,6 +218,7 @@ class Download
 			}
 		}
 		
+		activeConnections--;
 		db_value.update();
 	}
 }
