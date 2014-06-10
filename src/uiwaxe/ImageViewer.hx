@@ -80,7 +80,7 @@ class ImageViewer extends Panel
 			});
 		 setHandler(EventID.MOUSEWHEEL, function(e:Dynamic):Void 
 			{
-				_currentScale = clamp((_currentScale + (e.wheelRotation > 0 ? 1 : -1)/20),1,2);
+				_currentScale = clamp((_currentScale + (e.wheelRotation > 0 ? 1 : -1)/20),0.5,2);
 				zoom(_currentScale);
 				scroll(0,0);
 			});

@@ -21,7 +21,7 @@ class UIMain
 	public function new()
 	{
 		mFrame = Frame.create(null, null, "Manga", null, { width: 800, height: 600 });	
-		imgViewer = new ImageViewer(mFrame,null,{x:0,y:0}, {width:600,height:600});
+		imgViewer = new ImageViewer(mFrame,null,{x:0,y:0}, {width:800,height:600});
 		
 		App.setTopWindow(mFrame);
 		mFrame.shown = true;
@@ -31,8 +31,8 @@ class UIMain
 		var id = 0;
 		
 		var file = new Menu("",0);
-		file.append(id,"Open","Open something");
-		mFrame.handle(id++, function (_) {trace("rrr");});
+		//~ file.append(id,"Open","Open something");
+		//~ mFrame.handle(id++, function (_) {trace("rrr");});
 		
 		file.append(id,"Exit","Exit the application");
 		mFrame.handle(id++, close);

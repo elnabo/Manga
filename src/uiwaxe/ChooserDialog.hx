@@ -41,7 +41,7 @@ class ChooserDialog extends Dialog
 			});
 			
 		var lastRead = RadioButton.create(this,null,"Continue from last read",{x:20,y:50},null,RadioButton.wxRB_GROUP);
-		var fromChapter = RadioButton.create(this,null,"Go to",{x:20,y:70},null);
+		var fromChapter = RadioButton.create(this,null,"Go to",{x:20,y:70},null,0);
 		var chapterList = ComboBox.create(this,null,"Select a chapter",{x:47,y:90},{width:inSize.width-100,height:20},null);
 		chapterList.setHandler(wx.EventID.COMMAND_COMBOBOX_DROPDOWN, function (e:Dynamic) 
 			{
@@ -49,6 +49,8 @@ class ChooserDialog extends Dialog
 				{
 					return;
 				}
+				
+				fromChapter.value = true;
 					
 				chapterList.clear();
 				chapterList.label = "Select a chapter";
