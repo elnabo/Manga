@@ -6,11 +6,9 @@ import sys.db.Manager;
 import wx.App;
 import wx.Dialog;
 import wx.EventID;
-import wx.FlexGridSizer;
 import wx.Frame;
 import wx.Menu;
 import wx.MenuBar;
-import wx.Sizer;
 import wx.Window;
 
 class UIMain
@@ -30,15 +28,13 @@ class UIMain
 		var menu = new MenuBar();
 		var id = 0;
 		
-		var file = new Menu("",0);
-		//~ file.append(id,"Open","Open something");
-		//~ mFrame.handle(id++, function (_) {trace("rrr");});
+		var file = new Menu("");
 		
 		file.append(id,"Exit","Exit the application");
 		mFrame.handle(id++, close);
 		menu.append(file,"File");
 		
-		var manga = new Menu("",1);
+		var manga = new Menu("");
 		manga.append(id,"Download", "Download a manga");
 		mFrame.handle(id++, function (_) 
 			{
@@ -51,18 +47,12 @@ class UIMain
 			});
 		menu.append(manga,"Manga");
 		
+		var convert = new Menu("");
+		convert.append(id,"Import", "Import a manga");
+		mFrame.handle(id++, function (_) {} );
+		menu.append(convert,"Convert");
 		
-
 		mFrame.menuBar = menu;
-		//~ var ctrl = new Controls(imgViewer,mFrame,null,{x:600,y:0}, {width:200,height:600});
-		//~ var sizer = FlexGridSizer.create(null,2);
-		//~ 
-		//~ sizer.add(imgViewer,0,0,0);
-		//~ sizer.add(ctrl,1,Sizer.EXPAND|Sizer.ALIGN_TOP|Sizer.ALIGN_CENTER_HORIZONTAL,4);	
-		//~ 
-		//~ sizer.fit(mFrame);
-		//~ sizer.setSizeHints(mFrame);
-		//~ mFrame.sizer = sizer;
 	}
 	
 	function close (_)

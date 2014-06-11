@@ -22,7 +22,7 @@ class DownloadDialog extends Dialog
 	var txtButton:Button;
 	var txtError:StaticText;
 	
-	public function new (inParent:Window, inID:Int, inTitle:String="",
+	public function new (inParent:Window, inID:Null<Int>, inTitle:String="",
 						?inPosition:{x:Float,y:Float},
                    inSize:{width:Int,height:Int},
                    ?error:String)

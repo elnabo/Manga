@@ -8,7 +8,6 @@ import wx.EventID;
 import wx.Image;
 import wx.Loader;
 import wx.Panel;
-import wx.FlexGridSizer;
 import wx.Window;
 
 import sys.FileSystem;
@@ -37,11 +36,17 @@ class ImageViewer extends Panel
 	var height:Int;
 	
 	var timestamp:Float = Sys.time();
+	
+	var needToResize:Bool = false;
+	var lastResizeDemande:Float = Sys.time();
+	
+	var _parent:Window;
 
 	public function new(inParent:Window,?inID:Int,?inPosition:Position,
 		?inSize:Size, ?inStyle:Int)
 	{
 		 var handle = wx_window_create([inParent.wxHandle,inID,"",inPosition,inSize, inStyle] );
+		 _parent = inParent;
 		 super(handle);
 		 onPaint = paintWindow;
 		 
@@ -85,13 +90,26 @@ class ImageViewer extends Panel
 				scroll(0,0);
 			});
 			
+		setHandler(EventID.SIZE,function(e:Dynamic):Void
+			{
+				//~ needToResize = true;
+				width = _parent.size.width;
+				height = _parent.size.height;
+				size = _parent.size;
+				_imgStartX = 0;
+				_imgStartY = 0;
+				_currentScale = 1;
+				scroll(0,0);
+			
+				//~ if (_manga == null)
+				//~ {				
+					//~ _fullImage = _scaledImage = Image.getBlankImage(width,height);
+				//~ }
+					
+			});
 		
-		_fullImage = _scaledImage = Image.getBlankImage(width,height);
+		_fullImage = _scaledImage = Image.getBlankImage(1,1);
 		
-		var szr = FlexGridSizer.create(1,1);
-		szr.add(this);
-		szr.fit(this);
-		sizer = szr;
 	}
 	
 	public function display(manga:String,chap:Int,page:Int)
@@ -182,6 +200,8 @@ class ImageViewer extends Panel
 	
 	private function zoom(scale:Float)
 	{
+		if (_manga == null)
+			return;
 		if (Math.abs(1-scale) < 0.01)
 			_scaledImage = _fullImage;
 		else
