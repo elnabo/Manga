@@ -92,19 +92,9 @@ class ImageViewer extends Panel
 			
 		setHandler(EventID.SIZE,function(e:Dynamic):Void
 			{
-				//~ needToResize = true;
 				width = _parent.size.width;
 				height = _parent.size.height;
 				size = _parent.size;
-				_imgStartX = 0;
-				_imgStartY = 0;
-				_currentScale = 1;
-				scroll(0,0);
-			
-				//~ if (_manga == null)
-				//~ {				
-					//~ _fullImage = _scaledImage = Image.getBlankImage(width,height);
-				//~ }
 					
 			});
 		

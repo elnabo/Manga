@@ -4,7 +4,8 @@ import db.Manga;
 
 import wx.Alignment;
 import wx.Button;
-import wx.ComboBox;
+//~ import wx.ComboBox;
+import wx.Choice;
 import wx.Dialog;
 import wx.Loader;
 import wx.RadioButton;
@@ -28,8 +29,11 @@ class ChooserDialog extends Dialog
 		inParent.disable();
 		onClose = function(_) { inParent.enable(); destroy();}
 		
-		var mangaList = ComboBox.create(this,null,"Select a manga",{x:22,y:20},{width:inSize.width-50,height:20},null);
-		mangaList.setHandler(wx.EventID.COMMAND_COMBOBOX_DROPDOWN, function (e:Dynamic) 
+		//~ var mangaList = ComboBox.create(this,null,"Select a manga",{x:22,y:20},{width:inSize.width-50,height:20},null);
+		var mangaList = Choice.create(this,null,{x:22,y:20},{width:inSize.width-50,height:20},["1","2"]);
+		//~ mangaList.setHandler(wx.EventID.COMMAND_COMBOBOX_DROPDOWN, function (e:Dynamic) 
+		//~ mangaList.setHandler(wx.EventID.CHOICE, function (e:Dynamic) 
+		mangaList.setHandler(wx.EventID.SET_FOCUS, function (e:Dynamic) 
 			{
 				mangaList.clear();
 				mangaList.label = "Select a manga";
@@ -38,15 +42,20 @@ class ChooserDialog extends Dialog
 					if (manga.lastChapterDownloaded > 0)
 						mangaList.append(manga.name);
 				}
+				e.skip = true;
 			});
 			
 		var lastRead = RadioButton.create(this,null,"Continue from last read",{x:20,y:50},null,RadioButton.wxRB_GROUP);
 		var fromChapter = RadioButton.create(this,null,"Go to",{x:20,y:70},null,0);
-		var chapterList = ComboBox.create(this,null,"Select a chapter",{x:47,y:90},{width:inSize.width-100,height:20},null);
-		chapterList.setHandler(wx.EventID.COMMAND_COMBOBOX_DROPDOWN, function (e:Dynamic) 
+		//~ var chapterList = ComboBox.create(this,null,"Select a chapter",{x:47,y:90},{width:inSize.width-100,height:20},null);
+		var chapterList = Choice.create(this,null,{x:47,y:90},{width:inSize.width-100,height:20},["1","2"]);
+		//~ chapterList.setHandler(wx.EventID.COMMAND_COMBOBOX_DROPDOWN, function (e:Dynamic) 
+		//~ chapterList.setHandler(wx.EventID.CHOICE, function (_) 
+		chapterList.setHandler(wx.EventID.SET_FOCUS, function (e:Dynamic) 
 			{
 				if (mangaList.value == "Select a manga")
 				{
+					e.skip = true;
 					return;
 				}
 				
@@ -55,13 +64,18 @@ class ChooserDialog extends Dialog
 				chapterList.clear();
 				chapterList.label = "Select a chapter";
 				var manga = Manga.get(mangaList.value);
-				if (manga.lastChapterDownloaded == 0)
+				if (manga == null || manga.lastChapterDownloaded == 0)
+				{					
+					e.skip = true;
 					return;
+				}
 					
 				for (chapter in manga.getChapterList())
 				{
 					chapterList.append(chapter);
 				}
+				
+				e.skip = true;
 			});
 		
 			
