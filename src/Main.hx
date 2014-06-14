@@ -13,9 +13,6 @@ import sys.db.Sqlite;
 
 import wx.App;
 
-
-//~ import lime.Lime;
-
 class Main
 {
 	static var db = "manga.db";

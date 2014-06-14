@@ -33,6 +33,9 @@ class Download
 	private static var helper:Plugin = new MangaReaderPlugin();
 	private static var activeConnections:Int = 0;
 	private static var maxActiveConnections:Int = 2;
+	private static var currentDownloads:Array<String> = new Array<String>();
+	
+	public static var onFinish(null,default):Manga->Void = function(_){};
 	
 	/** Return the string name of the file. */
 	public static function image(url:String, to:String, ?maxConnections:Int=2)
@@ -137,41 +140,47 @@ class Download
 	public static function test(manga:String)
 	{
 		if (activeConnections >= maxActiveConnections)
-			throw Error.tooManyActiveConnections;//"Too many active connections";
+			throw Error.tooManyActiveConnections;
 		manga = StringTools.trim(manga);
 		if (manga == "") 
-			throw Error.invalidName;//"Invalid manga name";
+			throw Error.invalidName;
 			
 		var helper = Type.createInstance(Type.getClass(Download.helper), [manga]);
 		if (!helper.exists())
-			throw Error.notAvailable;//"This manga isn't available";
+			throw Error.notAvailable;
 	}
 	
 	public static function download(manga:String)
 	{
-		if (activeConnections >= maxActiveConnections)
-			return;
 		manga = StringTools.trim(manga);
 		if (manga == "") 
 			return;
 			
 		var helper = Type.createInstance(Type.getClass(Download.helper), [manga]);
+
 		if (!helper.exists())
 			return;
 			
 		manga = manga.toLowerCase().split(" ").join("_");
+		currentDownloads.push(manga);
 
-		var db_value:Manga = null;
-		for ( res in Manga.manager.search($name == manga))
-		{
-			db_value = res;
-		}
-		
+		var db_value:Manga = Manga.get(manga);
+			
 		if (db_value == null)
 		{
 			db_value = new Manga(manga,helper.lastChapter);
 			db_value.insert();
 		}
+		
+		if (db_value.downloadStatus != 0)
+			return;
+		
+		if (activeConnections >= maxActiveConnections)
+		{
+			return;
+		}
+		
+		db_value.downloadStatus = 1;
 		
 		var count = 0;		
 		var chap:Int = db_value.lastChapterDownloaded + 1;
@@ -197,7 +206,6 @@ class Download
 					}
 					catch ( e : Dynamic )
 					{
-						trace(e,chap);
 						break;
 					}
 				}
@@ -219,7 +227,13 @@ class Download
 		}
 		
 		activeConnections--;
+		
+		currentDownloads.remove(manga);
+
+		db_value.downloadStatus = 0;
 		db_value.update();
+		
+		onFinish(db_value);
 	}
 }
 

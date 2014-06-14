@@ -16,9 +16,9 @@ import sys.io.File;
 
 class ImageViewer extends Panel
 {
-	var _manga:String;
+	public var _manga(default,null):String;
 	var _mangaDB:Manga;
-	var _chap:Int = -1;
+	public var _chap(default,null):Int = -1;
 	var _page:Int = -1;
 	
 	var _scaledImage:Image;
@@ -42,17 +42,16 @@ class ImageViewer extends Panel
 	
 	var _parent:Window;
 
-	public function new(inParent:Window,?inID:Int,?inPosition:Position,
-		?inSize:Size, ?inStyle:Int)
+	public function new(inParent:Window,?inID:Null<Int>,?inPosition:{x:Int,y:Int},?inStyle:Null<Int>)
 	{
-		 var handle = wx_window_create([inParent.wxHandle,inID,"",inPosition,inSize, inStyle] );
 		 _parent = inParent;
+		 
+		 width = _parent.clientSize.width;
+		 height = _parent.clientSize.height;
+		 
+		 var handle = wx_window_create([inParent.wxHandle,inID,"",inPosition,inParent.clientSize, inStyle] );
 		 super(handle);
 		 onPaint = paintWindow;
-		 
-		 var s = (inSize == null) ? inParent.size : inSize;
-		 width = s.width;
-		 height = s.height;
 		 
 		 setHandler(EventID.LEFT_DOWN, function(e:Dynamic):Void 
 			{
@@ -92,9 +91,9 @@ class ImageViewer extends Panel
 			
 		setHandler(EventID.SIZE,function(e:Dynamic):Void
 			{
-				width = _parent.size.width;
-				height = _parent.size.height;
-				size = _parent.size;
+				width = _parent.clientSize.width;
+				height = _parent.clientSize.height;
+				size = {width:width, height:height};
 					
 			});
 		

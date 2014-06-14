@@ -10,10 +10,12 @@ class Manga extends Object
 {
 	public var id:SId;
 	public var name:SSmallText;
-	public var lastChapterDownloaded:SSmallInt ;
-	public var lastChapterRead:SSmallInt ;
-	public var currentPageRead:SSmallInt ;
-	public var currentChapterRead:SSmallInt ;
+	public var lastChapterDownloaded:SSmallInt;
+	public var lastChapterRead:SSmallInt;
+	public var currentPageRead:SSmallInt;
+	public var currentChapterRead:SSmallInt;
+	public var downloadStatus:SSmallInt;
+	public var downloadPriority:SSmallInt;
 	
 	private static var basePath:String = "";
 	
@@ -25,6 +27,8 @@ class Manga extends Object
 		lastChapterRead = 0;
 		currentPageRead = 1;
 		currentChapterRead = 1;
+		downloadStatus = 2;
+		downloadPriority = 0;
 	}
 	
 	public static function get(manga:String):Manga
