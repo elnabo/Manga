@@ -160,6 +160,9 @@ class ImageViewer extends Panel
 	
 	private function displayNextPage()
 	{
+		if (_manga == null)
+			return;
+			
 		if (FileSystem.exists(_manga+"/"+StringTools.lpad(""+_chap,"0",4)+"/"+StringTools.lpad(""+(_page+1),"0",3)+".jpg"))
 		{
 			display(_manga,_chap,_page+1);

@@ -10,12 +10,6 @@ import wx.StaticText;
 import wx.TextCtrl;
 import wx.Window;
 
-#if cpp
-import cpp.vm.Thread;
-#elseif neko
-import neko.vm.Thread;
-#end
-
 class DownloadDialog extends Dialog
 {
 	var txtInput:TextCtrl;
@@ -62,11 +56,8 @@ class DownloadDialog extends Dialog
 					return;
 				}
 				
-				Thread.create( function()
-				{
-					Download.download(txtInput.value);
+				Download.threadedDownload(txtInput.value);
 				
-				});
 				
 				close();
 			};

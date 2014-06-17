@@ -13,9 +13,10 @@ import sys.db.Sqlite;
 
 import wx.App;
 
+
 class Main
 {
-	static var db = "manga.db";
+	public static var db(default,never) = "manga.db";
 	
 	public function new()
 	{
@@ -39,17 +40,19 @@ class Main
 			Manager.initialize();
 			if (!TableCreate.exists(Manga.manager))
 				TableCreate.create(Manga.manager);
+				
 			return true;
 		}
 		catch ( e : Dynamic ) 
 		{
+			trace(e);
 			return false;
 		}
 	}
 	
 	private function cleanDB()
 	{
-		var mangas = Manga.manager.all();
+		var mangas = Manga.all();
 		
 		for (m in mangas)
 		{
@@ -71,12 +74,11 @@ class Main
 				m.update();
 			}
 		}
-		
 	}
 	
 	private function checkMangaUpdate()
 	{
-		var mangas = Lambda.array(Manga.manager.all());
+		var mangas = Lambda.array(Manga.all());
 		for (m in mangas)
 		{
 			if (m.downloadStatus == 0)
@@ -90,10 +92,10 @@ class Main
 	
 	private function restartDownload()
 	{
-		var mangas = Lambda.array(Manga.manager.all());
+		var mangas = Lambda.array(Manga.all());
 		mangas.sort(function (m1:Manga,m2:Manga)
 			{
-				if (m1.downloadPriority < m2.downloadPriority)
+				if (m1.downloadPriority > m2.downloadPriority)
 					return -1;
 				if (m1.downloadPriority == m2.downloadPriority)
 					return 0;
@@ -111,11 +113,11 @@ class Main
 	
 	public static function close()
 	{
-		for (m in Manga.manager.all())
+		for (m in Manga.all())
 		{
 			if (m.downloadStatus == 1)
 				m.downloadStatus = 2;
-			m.update();
+			//~ m.update();
 		}
 		Manager.cleanup();
 	}

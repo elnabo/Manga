@@ -2,7 +2,6 @@ package uiwaxe;
 
 import db.Manga;
 import web.Download;
-import sys.db.Manager;
 
 import wx.App;
 import wx.Bitmap;
@@ -15,13 +14,6 @@ import wx.Icon;
 import wx.Menu;
 import wx.MenuBar;
 import wx.Window;
-
-
-#if cpp
-import cpp.vm.Thread;
-#elseif neko
-import neko.vm.Thread;
-#end
 
 class UIMain
 {
@@ -38,21 +30,26 @@ class UIMain
 		mFrame.shown = true;
 		mFrame.onClose = close;
 		
-		Download.onFinish = function(e:Manga)
+		Download.onFinish = function(e:Manga, b:Bool)
 			{
 				var content = "You finished downloading " + e.name + 
 						".\nLast chapter : " + e.lastChapterDownloaded;
 						
 				var evt = CommandEvent.create(downloadFinishedEvent);
 				evt.string = content;
+				evt.int = (b) ? 1 : 0;
 				Event.queueEvent(mFrame,evt);
 			}
 			
 		mFrame.customHandler(downloadFinishedEvent, 
 			function(e:Dynamic)
 			{
-				new Popup(mFrame,null,"Download finished",e.string,{width:300,height:150});
-				var mangas = Lambda.array(Manga.manager.all().filter(
+				if (e.int == 1)
+				{
+					new Popup(mFrame,null,"Download finished",e.string,{width:300,height:150});
+				}
+				
+				var mangas = Lambda.array(Manga.all().filter(
 					function(e:Manga) { return e.downloadStatus == 2;}));
 					
 				if (mangas.length == 0)
@@ -62,11 +59,8 @@ class UIMain
 					function (e1:Manga, e2:Manga) { if (e1.downloadPriority > e2.downloadPriority) return -1;
 													if (e1.downloadPriority == e2.downloadPriority) return 0;
 													return 1;});
-				Thread.create( function()
-				{
-					Download.download(mangas.pop().rawName);
 				
-				});
+				Download.threadedDownload(mangas[0].rawName);
 				
 			});
 			

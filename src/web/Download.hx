@@ -6,7 +6,6 @@ import db.Manga;
 import haxe.Http;
 import haxe.io.Bytes;
 import haxe.io.BytesBuffer;
-import sys.db.Manager;
 import sys.io.File;
 import sys.io.FileOutput;
 import sys.FileSystem;
@@ -35,23 +34,28 @@ class Download
 	private static var maxActiveConnections:Int = 2;
 	private static var currentDownloads:Array<String> = new Array<String>();
 	
-	public static var onFinish(null,default):Manga->Void = function(_){};
+	public static var onFinish(null,default):Manga->Bool->Void = function(_,_){};
 	
 	/* To do check integrity 
 		Test if final size = original size
 		*/
-	/** Download the file. */
+	/** 
+	 * Download the file. 
+	 * Return true on success, false on failure
+	 */
 	public static function image(url:String, to:String, ?maxConnections:Int=2)
 	{
 		try
 		{
-			var f:FileOutput = File.write(to,true);
 			var h:Http = new Http(url);
 			
 			
 			// Test if server accept range request
-			var length:Int = acceptRange(url);
-			if( length != 0 && #if (neko || cpp) true #else false #end)
+			var res:Pair<Bool,Int> = acceptRange(url);
+			var length:Int = res.v;
+			var bytes:Bytes;
+			
+			if( res.k && #if (neko || cpp) true #else false #end)
 			{
 				var start = 0;
 				var end = 0;
@@ -107,15 +111,18 @@ class Download
 				}
 				
 				// Put the part in the correct order.
-				var bytes:Bytes = PartialContent.rebuild(results);
-				f.writeBytes(bytes,0,bytes.length);
+				bytes = PartialContent.rebuild(results);
 			}
 			else
 			{
-				var bytes:Bytes = Bytes.ofString(Http.requestUrl(url));
-				f.writeBytes(bytes,0,bytes.length);
+				bytes = Bytes.ofString(Http.requestUrl(url));
 			}
 			
+			if (bytes.length != length)
+				return false;
+				
+			var f:FileOutput = File.write(to,true);
+			f.writeBytes(bytes,0,bytes.length);
 			f.flush();
 			f.close();
 		}
@@ -123,21 +130,22 @@ class Download
 		{
 			throw e;
 		}
+		return true;
 	}
 	
 	/**
 	 * Return content length if accept else 0 
 	 */
-	public static function acceptRange(url:String):Int
+	public static function acceptRange(url:String)
 	{
 		var h:Http = new Http(url);
 		h.addHeader("Range","");
 		h.customRequest(false,null,null,"HEAD");
 		var headers = h.responseHeaders;
-		if (headers.exists("Accept-Ranges") && headers.get("Accept-Ranges") != "none"
-			&& headers.exists("Content-Length"))
-			return Std.parseInt(headers.get("Content-Length"));
-		return 0;
+		var res= (headers.exists("Accept-Ranges") && headers.get("Accept-Ranges") != "none"
+			&& headers.exists("Content-Length"));
+			
+		return new Pair<Bool,Int>(res, Std.parseInt(headers.get("Content-Length")));
 	}
 	
 	public static function test(manga:String)
@@ -154,6 +162,7 @@ class Download
 	public static function download(manga:String, ?startChapter:Int=0)
 	{
 		manga = StringTools.trim(manga);
+		
 		if (manga == "") 
 			return;
 			
@@ -162,8 +171,6 @@ class Download
 
 		if (!helper.exists())
 			return;
-		
-		currentDownloads.push(manga);
 			
 		var db_manga = manga.toLowerCase().split(" ").join("_");
 		var db_value:Manga = Manga.get(db_manga);
@@ -174,13 +181,19 @@ class Download
 			db_value.insert();
 		}
 		
-		if (currentDownloads.indexOf(db_manga) == -1)
+		//~ trace(db_value.name, db_value.downloadStatus, db_value.downloadPriority);
+		
+		if (currentDownloads.indexOf(manga) != -1)
 			return;
+			
+		db_value.downloadStatus = 2;
 		
 		if (activeConnections >= maxActiveConnections)
 		{
 			return;
 		}
+		
+		currentDownloads.push(manga);
 		
 		db_value.downloadStatus = 1;
 		
@@ -205,7 +218,11 @@ class Download
 						var imgURL = helper.getImageURL(chap,page);
 						var imgType:String = imgURL.split(".").pop();
 						imgPath = directory+"/"+StringTools.lpad(""+page,"0",3)+"."+imgType;
-						Download.image(imgURL,imgPath);
+						while (true)
+						{
+							if (Download.image(imgURL,imgPath))
+								break;
+						}
 						page++;
 						haveDownload = true;
 					}
@@ -232,14 +249,12 @@ class Download
 		}
 		
 		activeConnections--;
-		
-		currentDownloads.remove(db_manga);
+		currentDownloads.remove(manga);
 
 		db_value.downloadStatus = 0;
 		db_value.update();
 		
-		if (haveDownload)
-			onFinish(db_value);
+		onFinish(db_value,haveDownload);
 	}
 	
 	public static function threadedDownload(manga:String,?startChapter:Int=0,?onExit:Void->Void=null)

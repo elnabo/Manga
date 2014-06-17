@@ -5,6 +5,12 @@ import sys.db.Manager;
 import sys.db.Object;
 import sys.db.Types;
 
+#if cpp
+import cpp.vm.Mutex;
+#elseif neko
+import neko.vm.Mutex;
+#end
+
 enum Priority
 {
 	LOW;
@@ -28,6 +34,7 @@ class Manga extends Object
 	public var downloadPriority:SSmallInt;
 	
 	private static var basePath:String = "";
+	private static var m:Mutex = new Mutex();
 	
 	public function new(name:String,rawName:String,?lastChapterDownloaded:Int=0)
 	{
@@ -42,9 +49,32 @@ class Manga extends Object
 		downloadPriority = Type.enumIndex(Priority.NORMAL);
 	}
 	
+	override public function update()
+	{
+		m.acquire();
+		super.update();
+		m.release();
+	}
+	override public function insert()
+	{
+		m.acquire();
+		super.insert();
+		m.release();
+	}
+	
+	public static function all():List<Manga>
+	{
+		m.acquire();
+		var l = manager.all();
+		m.release();
+		return l;
+	}
+	
 	public static function get(manga:String):Manga
 	{
+		m.acquire();
 		var query = manager.search($name == manga);
+		m.release();
 		if (query != null && query.length > 0)
 			return query.first();
 		return null;
