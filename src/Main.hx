@@ -1,10 +1,10 @@
-import db.*;
+import db.Manga;
 import plugin.*;
-//~ import ui.UIMain;
 import uiwaxe.UIMain;
 import web.Download;
 
 
+import haxe.ds.ListSort;
 import haxe.Http;
 import sys.FileSystem;
 import sys.db.Manager;
@@ -19,8 +19,15 @@ class Main
 	
 	public function new()
 	{
-		initDB();
-		new UIMain();
+		if (initDB())
+		{
+			cleanDB();
+			UIMain.onClose = close;
+			new UIMain();
+			
+			checkMangaUpdate();
+			restartDownload();
+		}
 		return;
 	}
 	
@@ -36,9 +43,81 @@ class Main
 		}
 		catch ( e : Dynamic ) 
 		{
-			trace(e);
 			return false;
 		}
+	}
+	
+	private function cleanDB()
+	{
+		var mangas = Manga.manager.all();
+		
+		for (m in mangas)
+		{
+			if (m.downloadStatus == 0 && m.lastChapterDownloaded == 0)
+			{
+				if (FileSystem.exists(m.name) && FileSystem.isDirectory(m.name))
+				{
+					if (FileSystem.readDirectory(m.name).length == 0)
+					{
+						FileSystem.deleteDirectory(m.name);
+					}
+				}
+				m.delete();
+			}
+			
+			else if (!(FileSystem.exists(m.name) && FileSystem.isDirectory(m.name)))
+			{
+				m.lastChapterDownloaded = 0;
+				m.update();
+			}
+		}
+		
+	}
+	
+	private function checkMangaUpdate()
+	{
+		var mangas = Lambda.array(Manga.manager.all());
+		for (m in mangas)
+		{
+			if (m.downloadStatus == 0)
+			{
+				m.downloadPriority = Type.enumIndex(Priority.UPDATE);
+				m.update();
+				Download.threadedDownload(m.rawName);
+			}
+		}
+	}
+	
+	private function restartDownload()
+	{
+		var mangas = Lambda.array(Manga.manager.all());
+		mangas.sort(function (m1:Manga,m2:Manga)
+			{
+				if (m1.downloadPriority < m2.downloadPriority)
+					return -1;
+				if (m1.downloadPriority == m2.downloadPriority)
+					return 0;
+				return 1;
+			});
+		for (m in mangas)
+		{
+			if (m.downloadStatus == 2)
+			{
+				
+				Download.threadedDownload(m.rawName);
+			}
+		}
+	}
+	
+	public static function close()
+	{
+		for (m in Manga.manager.all())
+		{
+			if (m.downloadStatus == 1)
+				m.downloadStatus = 2;
+			m.update();
+		}
+		Manager.cleanup();
 	}
 	
 	public static function main()

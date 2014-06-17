@@ -24,7 +24,7 @@ class ChooserDialog extends Dialog
 		onClose = function(_) { inParent.enable(); destroy();}
 		
 		var initNames = Manga.manager.all().filter(function(x:Manga):Bool { return x.lastChapterDownloaded > 0;});
-		var names = Lambda.array(Lambda.map(initNames, function (x:Manga):String {return x.name;}));
+		var names = Lambda.array(Lambda.map(initNames, function (x:Manga):String {return x.rawName;}));
 		
 		var mangaList = Choice.create(this,null,{x:22,y:20},{width:inSize.width-50,height:20},names);
 		mangaList.selection = mangaList.find_string(viewer._manga);
@@ -35,7 +35,7 @@ class ChooserDialog extends Dialog
 				for (manga in Manga.manager.all())
 				{
 					if (manga.lastChapterDownloaded > 0)
-						mangaList.append(manga.name);
+						mangaList.append(manga.rawName);
 				}
 				mangaList.selection = mangaList.find_string(viewer._manga);
 				e.skip = true;

@@ -165,7 +165,7 @@ class ImageViewer extends Panel
 			display(_manga,_chap,_page+1);
 			return;
 		}
-		else
+		else if (_mangaDB.chapterExists(_chap+1))
 		{
 			display(_manga,_chap+1,1);
 			return;

@@ -49,9 +49,9 @@ class DownloadDialog extends Dialog
 				{
 					switch(e)
 					{
-						case Error.tooManyActiveConnections:
-							txtError.position = {x:0,y:115};
-							txtError.label = "Too many downloads. \nTry again later.";
+						//~ case Error.tooManyActiveConnections:
+							//~ txtError.position = {x:0,y:115};
+							//~ txtError.label = "Too many downloads. \nTry again later.";
 						case Error.invalidName:
 							txtError.label = "Invalid name";
 						case Error.notAvailable:

@@ -5,18 +5,28 @@ import web.Download;
 import sys.db.Manager;
 
 import wx.App;
+import wx.Bitmap;
 import wx.CommandEvent;
 import wx.Dialog;
 import wx.Event;
 import wx.EventID;
 import wx.Frame;
+import wx.Icon;
 import wx.Menu;
 import wx.MenuBar;
 import wx.Window;
 
+
+#if cpp
+import cpp.vm.Thread;
+#elseif neko
+import neko.vm.Thread;
+#end
+
 class UIMain
 {
 	public static var downloadFinishedEvent(default,null):Int = EventType.newEventType();
+	public static var onClose:Void->Void;
 	var imgViewer:ImageViewer;
 	var mFrame:Frame;
 	
@@ -42,6 +52,22 @@ class UIMain
 			function(e:Dynamic)
 			{
 				new Popup(mFrame,null,"Download finished",e.string,{width:300,height:150});
+				var mangas = Lambda.array(Manga.manager.all().filter(
+					function(e:Manga) { return e.downloadStatus == 2;}));
+					
+				if (mangas.length == 0)
+					return;
+					
+				mangas.sort(
+					function (e1:Manga, e2:Manga) { if (e1.downloadPriority > e2.downloadPriority) return -1;
+													if (e1.downloadPriority == e2.downloadPriority) return 0;
+													return 1;});
+				Thread.create( function()
+				{
+					Download.download(mangas.pop().rawName);
+				
+				});
+				
 			});
 			
 		var menu = new MenuBar();
@@ -83,15 +109,14 @@ class UIMain
 		
 		imgViewer = new ImageViewer(mFrame,null,{x:0,y:0},null);
 		
+		mFrame.setIcon(Icon.createFromFile("../assets/logo64.ico",WxBitmapType.wxBITMAP_TYPE_ICO));
+		
 	}
 	
 	function close (_)
 	{
-		for (m in Manga.manager.all())
-		{
-			m.update();
-		}
-		Manager.cleanup();
+		if (onClose != null)
+			onClose();
 		App.quit();
 	}
 	

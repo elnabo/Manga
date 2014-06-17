@@ -5,11 +5,21 @@ import sys.db.Manager;
 import sys.db.Object;
 import sys.db.Types;
 
+enum Priority
+{
+	LOW;
+	NORMAL;
+	HIGH;
+	PREUPDATE;
+	UPDATE;
+}
+
 @:id(id)
 class Manga extends Object
 {
 	public var id:SId;
 	public var name:SSmallText;
+	public var rawName:SSmallText;
 	public var lastChapterDownloaded:SSmallInt;
 	public var lastChapterRead:SSmallInt;
 	public var currentPageRead:SSmallInt;
@@ -19,16 +29,17 @@ class Manga extends Object
 	
 	private static var basePath:String = "";
 	
-	public function new(name:String,?lastChapterDownloaded:Int=0)
+	public function new(name:String,rawName:String,?lastChapterDownloaded:Int=0)
 	{
 		super();
 		this.name = name;
+		this.rawName = rawName;
 		this.lastChapterDownloaded = lastChapterDownloaded;
 		lastChapterRead = 0;
 		currentPageRead = 1;
 		currentChapterRead = 1;
 		downloadStatus = 2;
-		downloadPriority = 0;
+		downloadPriority = Type.enumIndex(Priority.NORMAL);
 	}
 	
 	public static function get(manga:String):Manga
@@ -44,8 +55,31 @@ class Manga extends Object
 		var path = basePath+name+"/";
 		return Lambda.array(Lambda.filter(
 			FileSystem.readDirectory(path),
-			function (e) {return FileSystem.isDirectory(path+e);}
+			function (e) 
+			{
+				return FileSystem.isDirectory(path+e) && (Std.parseInt(unLPad(e)) <= lastChapterDownloaded) ;
+			}
 			));
+	}
+	
+	public function chapterExists(chapter:Int)
+	{
+		var path = basePath+name+"/";
+		return FileSystem.isDirectory(path+StringTools.lpad(""+chapter,"0",4)) && chapter <= lastChapterDownloaded ;
+	}
+	
+	public function unLPad( s : String, p : String = "0" ) : String 
+	{
+		var l = s.length;
+		var r = 0;
+		while( r < l && s.charAt(r) == p )
+		{
+			r++;
+		}
+		if( r > 0 )
+			return s.substr(r, l-r);
+		else
+			return s;
 	}
 	
 	public static var manager = new Manager<Manga>(Manga);

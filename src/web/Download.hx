@@ -23,7 +23,7 @@ import neko.vm.Thread;
 
 class Error
 {
-	public static var tooManyActiveConnections(default,null):String = "Too many active connections";
+	//~ public static var tooManyActiveConnections(default,null):String = "Too many active connections";
 	public static var invalidName(default,null):String = "Invalid manga name";
 	public static var notAvailable(default,null):String = "This manga isn't available";
 }
@@ -37,7 +37,10 @@ class Download
 	
 	public static var onFinish(null,default):Manga->Void = function(_){};
 	
-	/** Return the string name of the file. */
+	/* To do check integrity 
+		Test if final size = original size
+		*/
+	/** Download the file. */
 	public static function image(url:String, to:String, ?maxConnections:Int=2)
 	{
 		try
@@ -139,8 +142,6 @@ class Download
 	
 	public static function test(manga:String)
 	{
-		if (activeConnections >= maxActiveConnections)
-			throw Error.tooManyActiveConnections;
 		manga = StringTools.trim(manga);
 		if (manga == "") 
 			throw Error.invalidName;
@@ -150,29 +151,30 @@ class Download
 			throw Error.notAvailable;
 	}
 	
-	public static function download(manga:String)
+	public static function download(manga:String, ?startChapter:Int=0)
 	{
 		manga = StringTools.trim(manga);
 		if (manga == "") 
 			return;
 			
+		
 		var helper = Type.createInstance(Type.getClass(Download.helper), [manga]);
 
 		if (!helper.exists())
 			return;
-			
-		manga = manga.toLowerCase().split(" ").join("_");
+		
 		currentDownloads.push(manga);
-
-		var db_value:Manga = Manga.get(manga);
+			
+		var db_manga = manga.toLowerCase().split(" ").join("_");
+		var db_value:Manga = Manga.get(db_manga);
 			
 		if (db_value == null)
 		{
-			db_value = new Manga(manga,helper.lastChapter);
+			db_value = new Manga(db_manga, manga,helper.lastChapter);
 			db_value.insert();
 		}
 		
-		if (db_value.downloadStatus != 0)
+		if (currentDownloads.indexOf(db_manga) == -1)
 			return;
 		
 		if (activeConnections >= maxActiveConnections)
@@ -183,12 +185,14 @@ class Download
 		db_value.downloadStatus = 1;
 		
 		var count = 0;		
-		var chap:Int = db_value.lastChapterDownloaded + 1;
+		var chap:Int = Std.int(Math.max(startChapter,db_value.lastChapterDownloaded + 1));
 		activeConnections++;
+		
+		var haveDownload = false;
 		
 		while (helper.doesChapterExists(chap))
 		{
-			var directory:String = manga+"/"+StringTools.lpad(""+chap,"0",4);
+			var directory:String = db_manga+"/"+StringTools.lpad(""+chap,"0",4);
 			FileSystem.createDirectory(directory);
 			try
 			{
@@ -203,6 +207,7 @@ class Download
 						imgPath = directory+"/"+StringTools.lpad(""+page,"0",3)+"."+imgType;
 						Download.image(imgURL,imgPath);
 						page++;
+						haveDownload = true;
 					}
 					catch ( e : Dynamic )
 					{
@@ -228,12 +233,23 @@ class Download
 		
 		activeConnections--;
 		
-		currentDownloads.remove(manga);
+		currentDownloads.remove(db_manga);
 
 		db_value.downloadStatus = 0;
 		db_value.update();
 		
-		onFinish(db_value);
+		if (haveDownload)
+			onFinish(db_value);
+	}
+	
+	public static function threadedDownload(manga:String,?startChapter:Int=0,?onExit:Void->Void=null)
+	{
+		Thread.create(function()
+			{
+				download(manga,startChapter);
+				if (onExit != null)
+					onExit();
+			});
 	}
 }
 

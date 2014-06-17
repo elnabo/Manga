@@ -30,10 +30,10 @@ class DownloadStatusDialog extends Dialog
 		var mangas = Manga.manager.all();
 		
 		var download = Choice.create(this,null,{x:22,y:50},{width:inSize.width-50,height:20},
-				Lambda.array(mangas.filter(function(e:Manga) { return e.downloadStatus == 1;}).map(function(e:Manga){return e.name;})));
+				Lambda.array(mangas.filter(function(e:Manga) { return e.downloadStatus == 1;}).map(function(e:Manga){return e.rawName;})));
 		download.selection = 0;
 		var wait = Choice.create(this,null,{x:22,y:110},{width:inSize.width-50,height:20},
-				Lambda.array(mangas.filter(function(e:Manga) { return e.downloadStatus == 2;}).map(function(e:Manga){return e.name;})));
+				Lambda.array(mangas.filter(function(e:Manga) { return e.downloadStatus == 2;}).map(function(e:Manga){return e.rawName;})));
 		wait.selection = 0;
 		
 		var ok = Button.create(this,null, "OK",{x:Std.int(inSize.width/2 - 25),y:inSize.height - 65},{width:50,height:30},null);
