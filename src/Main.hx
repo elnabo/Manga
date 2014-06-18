@@ -73,6 +73,12 @@ class Main
 				m.lastChapterDownloaded = 0;
 				m.update();
 			}
+			
+			if (m.downloadStatus == 1)
+			{
+				m.downloadStatus = 2;
+				m.update();
+			 }
 		}
 	}
 	

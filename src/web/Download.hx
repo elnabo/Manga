@@ -43,8 +43,11 @@ class Download
 	 * Download the file. 
 	 * Return true on success, false on failure
 	 */
-	public static function image(url:String, to:String, ?maxConnections:Int=2)
+	public static function file(url:String, to:String,?overwrite:Bool=false, ?maxConnections:Int=2)
 	{
+		if (overwrite && FileSystem.exists(to))
+			return true;
+			
 		try
 		{
 			var h:Http = new Http(url);
@@ -181,8 +184,6 @@ class Download
 			db_value.insert();
 		}
 		
-		//~ trace(db_value.name, db_value.downloadStatus, db_value.downloadPriority);
-		
 		if (currentDownloads.indexOf(manga) != -1)
 			return;
 			
@@ -198,11 +199,10 @@ class Download
 		db_value.downloadStatus = 1;
 		
 		var count = 0;		
-		var chap:Int = Std.int(Math.max(startChapter,db_value.lastChapterDownloaded + 1));
+		var chap:Int = (startChapter == 0) ? db_value.lastChapterDownloaded + 1 : startChapter;
 		activeConnections++;
 		
 		var haveDownload = false;
-		
 		while (helper.doesChapterExists(chap))
 		{
 			var directory:String = db_manga+"/"+StringTools.lpad(""+chap,"0",4);
@@ -220,7 +220,7 @@ class Download
 						imgPath = directory+"/"+StringTools.lpad(""+page,"0",3)+"."+imgType;
 						while (true)
 						{
-							if (Download.image(imgURL,imgPath))
+							if (Download.file(imgURL,imgPath))
 								break;
 						}
 						page++;
@@ -231,9 +231,10 @@ class Download
 						break;
 					}
 				}
+
+				db_value.lastChapterDownloaded = chap;
 				chap++;
 				count++;
-				db_value.lastChapterDownloaded ++;
 				
 				if (count > 3)
 				{

@@ -26,15 +26,28 @@ class DownloadDialog extends Dialog
 		inParent.disable();
 		onClose = function(_) { inParent.enable(); destroy();}
 		
-		txtInput = TextCtrl.create(this,null,null,{x:22,y:25},{width:inSize.width - 50, height:30},null);
-		txtButton = Button.create(this,null, "Download",{x:47,y:80},{width:inSize.width - 100,height:30},null);
+		txtInput = TextCtrl.create(this,null,null,{x:22,y:25},{width:inSize.width - 50, height:20},null);
 		
-		txtError = StaticText.create(this,null,null,{x:0,y:125},{width:inSize.width,height:40},Alignment.wxALIGN_CENTER);
+		StaticText.create(this,null,"From chapter",{x:52,y:60},{width:100,height:20},Alignment.wxALIGN_LEFT);
+		var chapInput = TextCtrl.create(this,null,"1",{x:152,y:60},{width:70, height:20},null);
+		
+		txtButton = Button.create(this,null, "Download",{x:47,y:90},{width:inSize.width - 100,height:30},null);
+		
+		
+		
+		txtError = StaticText.create(this,null,null,{x:0,y:135},{width:inSize.width,height:40},Alignment.wxALIGN_CENTER);
 		txtError.setForegroundColor(255,0,0,255);
 		txtError.setFontSize(14);
 		
 		txtButton.onClick = function (_)
 			{
+				var chap = Std.parseInt(chapInput.value);
+				if ( (chap == null) || (chap == Math.NaN) || (chap < 1) )
+				{
+					txtError.label = "Invalid chapter number";
+					return;
+				}
+				
 				try
 				{
 					Download.test(txtInput.value);
@@ -43,9 +56,6 @@ class DownloadDialog extends Dialog
 				{
 					switch(e)
 					{
-						//~ case Error.tooManyActiveConnections:
-							//~ txtError.position = {x:0,y:115};
-							//~ txtError.label = "Too many downloads. \nTry again later.";
 						case Error.invalidName:
 							txtError.label = "Invalid name";
 						case Error.notAvailable:
@@ -56,7 +66,7 @@ class DownloadDialog extends Dialog
 					return;
 				}
 				
-				Download.threadedDownload(txtInput.value);
+				Download.threadedDownload(txtInput.value, chap);
 				
 				
 				close();

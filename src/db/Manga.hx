@@ -79,6 +79,15 @@ class Manga extends Object
 			return query.first();
 		return null;
 	}
+	public static function getFromRaw(manga:String):Manga
+	{
+		m.acquire();
+		var query = manager.search($rawName == manga);
+		m.release();
+		if (query != null && query.length > 0)
+			return query.first();
+		return null;
+	}
 	
 	public function getChapterList():Array<String>
 	{
@@ -94,8 +103,8 @@ class Manga extends Object
 	
 	public function chapterExists(chapter:Int)
 	{
-		var path = basePath+name+"/";
-		return FileSystem.isDirectory(path+StringTools.lpad(""+chapter,"0",4)) && chapter <= lastChapterDownloaded ;
+		var path = basePath+name+"/"+StringTools.lpad(""+chapter,"0",4);
+		return FileSystem.exists(path) && FileSystem.isDirectory(path) && chapter <= lastChapterDownloaded ;
 	}
 	
 	public function unLPad( s : String, p : String = "0" ) : String 

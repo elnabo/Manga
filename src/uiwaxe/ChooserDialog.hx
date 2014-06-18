@@ -28,19 +28,7 @@ class ChooserDialog extends Dialog
 		
 		var mangaList = Choice.create(this,null,{x:22,y:20},{width:inSize.width-50,height:20},names);
 		mangaList.selection = mangaList.find_string(viewer._manga);
-		mangaList.setHandler(wx.EventID.SET_FOCUS, function (e:Dynamic) 
-			{
-				mangaList.clear();
-				mangaList.label = "Select a manga";
-				for (manga in Manga.all())
-				{
-					if (manga.lastChapterDownloaded > 0)
-						mangaList.append(manga.rawName);
-				}
-				mangaList.selection = mangaList.find_string(viewer._manga);
-				e.skip = true;
-			});
-			
+		
 		var lastRead = RadioButton.create(this,null,"Continue from last read",{x:20,y:50},null,RadioButton.wxRB_GROUP);
 		var fromChapter = RadioButton.create(this,null,"Go to",{x:20,y:70},null,0);
 		
@@ -55,10 +43,27 @@ class ChooserDialog extends Dialog
 		}
 		var chapterList = Choice.create(this,null,{x:47,y:90},{width:inSize.width-100,height:20},chaps);
 		
+		
+		mangaList.setHandler(wx.EventID.SET_FOCUS, function (e:Dynamic) 
+			{
+				mangaList.clear();
+				mangaList.label = "Select a manga";
+				for (manga in Manga.all())
+				{
+					if (manga.lastChapterDownloaded > 0)
+						mangaList.append(manga.rawName);
+				}
+				mangaList.selection = mangaList.find_string(viewer._manga);
+				e.skip = true;
+				
+				chapterList.clear();
+			});
+			
+		
 		chapterList.selection = chapterList.find_string(StringTools.lpad(""+viewer._chap,"0",4));
 		chapterList.setHandler(wx.EventID.SET_FOCUS, function (e:Dynamic) 
 			{
-				if (mangaList.value == "Select a manga")
+				if (mangaList.value == null)
 				{
 					return;
 				}
@@ -67,13 +72,21 @@ class ChooserDialog extends Dialog
 					
 				chapterList.clear();
 				chapterList.label = "Select a chapter";
-				var manga = Manga.get(mangaList.value);
+				var manga = Manga.getFromRaw(mangaList.value);
 				if (manga == null || manga.lastChapterDownloaded == 0)
 				{					
 					return;
 				}
-					
-				for (chapter in manga.getChapterList())
+				
+				
+				var list = manga.getChapterList();
+				if (list.length == 0)
+				{
+					e.skip = true;
+					return;
+				}
+				manga.currentChapterRead = Std.int(Math.min(manga.currentChapterRead,Std.parseInt(unLPad(list[0]))));
+				for (chapter in list)
 				{
 					chapterList.append(chapter);
 				}
@@ -85,20 +98,24 @@ class ChooserDialog extends Dialog
 		var validate = Button.create(this,null, "Validate",{x:45,y:130},{width:100,height:30},null);
 		validate.onClick = function(_)
 			{
+				var manga = Manga.getFromRaw(mangaList.value);
+				if (manga == null)
+					return;
+					
 				if (fromChapter.value)
 				{
-					if (chapterList.value == "Select a chapter")
+					if (chapterList.value == null)
 						return;
 		
-					viewer.display(mangaList.value,Std.parseInt(unLPad(chapterList.value)), 1);
+					viewer.display(manga.name,Std.parseInt(unLPad(chapterList.value)), 1);
 				}
 				else
 				{
-					if (mangaList.value == "Select a manga")
+					if (mangaList.value == null)
 						return;
-						
-					var manga = Manga.get(mangaList.value);
-					viewer.display(mangaList.value,manga.currentChapterRead,manga.currentPageRead);
+					
+					var chapter = Std.int(Math.max(manga.currentChapterRead,Std.parseInt(unLPad(manga.getChapterList()[0]))));
+					viewer.display(manga.name,chapter,manga.currentPageRead);
 				}
 				close();
 			}

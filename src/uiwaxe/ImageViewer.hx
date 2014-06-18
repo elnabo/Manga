@@ -130,6 +130,7 @@ class ImageViewer extends Panel
 			{
 				_mangaDB.currentChapterRead = _chap;
 				_mangaDB.currentPageRead = _page;
+				_mangaDB.update();
 			}
 			
 			refresh(); 

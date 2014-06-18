@@ -77,7 +77,7 @@ class UIMain
 		manga.append(id,"Download", "Download a manga");
 		mFrame.handle(id++, function (_) 
 			{
-				new DownloadDialog(mFrame,null,"Download a manga",{width:300,height:200});
+				new DownloadDialog(mFrame,null,"Download a manga",{width:300,height:210});
 			});
 		manga.append(id,"Read a manga", "");
 		mFrame.handle(id++, function (_) 
