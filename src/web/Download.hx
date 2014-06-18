@@ -180,7 +180,7 @@ class Download
 			
 		if (db_value == null)
 		{
-			db_value = new Manga(db_manga, manga,helper.lastChapter);
+			db_value = new Manga(db_manga, manga,(startChapter == 0) ? 0 : startChapter - 1);
 			db_value.insert();
 		}
 		

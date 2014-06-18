@@ -32,7 +32,7 @@ class UIMain
 		
 		Download.onFinish = function(e:Manga, b:Bool)
 			{
-				var content = "You finished downloading " + e.name + 
+				var content = "You finished downloading " + e.rawName + 
 						".\nLast chapter : " + e.lastChapterDownloaded;
 						
 				var evt = CommandEvent.create(downloadFinishedEvent);

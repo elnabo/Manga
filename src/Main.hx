@@ -68,12 +68,6 @@ class Main
 				m.delete();
 			}
 			
-			else if (!(FileSystem.exists(m.name) && FileSystem.isDirectory(m.name)))
-			{
-				m.lastChapterDownloaded = 0;
-				m.update();
-			}
-			
 			if (m.downloadStatus == 1)
 			{
 				m.downloadStatus = 2;
