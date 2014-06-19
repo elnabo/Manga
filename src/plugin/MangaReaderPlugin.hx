@@ -44,7 +44,10 @@ class MangaReaderPlugin extends Plugin
 	{
 		var h = new Http(mainURL+manga);
 		var exist = true;
-		h.onError = function(_) { exist = false;};
+		h.onError = function(e:Dynamic) 
+			{
+				exist = !(e == "Http Error #404");
+			};
 		h.request(null);
 		return exist;
 	}

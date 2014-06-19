@@ -198,7 +198,6 @@ class Download
 		
 		db_value.downloadStatus = 1;
 		
-		var count = 0;		
 		var chap:Int = (startChapter == 0) ? db_value.lastChapterDownloaded + 1 : startChapter;
 		activeConnections++;
 		
@@ -228,24 +227,23 @@ class Download
 					}
 					catch ( e : Dynamic )
 					{
-						break;
+						// stop only if 404 else restart the page
+						if (e == "Http Error #404")
+							break;
 					}
 				}
 
 				db_value.lastChapterDownloaded = chap;
 				chap++;
-				count++;
 				
-				if (count > 3)
-				{
-					count = 0;
-					db_value.update();
-				}
+				db_value.update();
 				
 			}
 			catch (e : Dynamic)
 			{
-				break;
+				// stop only if 404 else restart the page
+				if (e == "Http Error #404")
+					break;
 			}
 		}
 		
