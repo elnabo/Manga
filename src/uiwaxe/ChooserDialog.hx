@@ -80,7 +80,7 @@ class ChooserDialog extends Dialog
 				
 				
 				var list = manga.getChapterList();
-				if (list.length == 0)
+				if (list==null || list.length == 0)
 				{
 					e.skip = true;
 					return;
@@ -115,6 +115,7 @@ class ChooserDialog extends Dialog
 						return;
 					
 					var chapter = Std.int(Math.max(manga.currentChapterRead,Std.parseInt(unLPad(manga.getChapterList()[0]))));
+					trace(chapter,manga.getChapterList()[0]);
 					viewer.display(manga.name,chapter,manga.currentPageRead);
 				}
 				close();
@@ -128,6 +129,7 @@ class ChooserDialog extends Dialog
 	
 	public function unLPad( s : String, p : String = "0" ) : String 
 	{
+		if (s == null) { return ""; }
 		var l = s.length;
 		var r = 0;
 		while( r < l && s.charAt(r) == p )

@@ -67,7 +67,7 @@ class Manga extends Object
 		m.acquire();
 		var l = manager.all();
 		m.release();
-		return l;
+		return l;	
 	}
 	
 	public static function get(manga:String):Manga
@@ -96,7 +96,7 @@ class Manga extends Object
 			FileSystem.readDirectory(path),
 			function (e) 
 			{
-				return FileSystem.isDirectory(path+e) && (Std.parseInt(unLPad(e)) <= lastChapterDownloaded) ;
+				return FileSystem.isDirectory(path+e);
 			}
 			));
 	}
