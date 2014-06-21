@@ -45,7 +45,6 @@ class Main
 		}
 		catch ( e : Dynamic ) 
 		{
-			trace(e);
 			return false;
 		}
 	}
@@ -53,7 +52,6 @@ class Main
 	private function cleanDB()
 	{
 		var mangas = Manga.all();
-		
 		for (m in mangas)
 		{
 			if (m.downloadStatus == 0 && m.lastChapterDownloaded == 0)
@@ -117,7 +115,7 @@ class Main
 		{
 			if (m.downloadStatus == 1)
 				m.downloadStatus = 2;
-			//~ m.update();
+			m.update();
 		}
 		Manager.cleanup();
 	}

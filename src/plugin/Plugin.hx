@@ -33,20 +33,31 @@ class Plugin
 		}
 			
 		
+		
 		var subFolder = FileSystem.readDirectory(manga);
+		
+		if (subFolder == null)
+		{
+			lastChapter = 0;
+			return;
+		}
 		var sorted = subFolder.filter(
 				function(v:String):Bool
 				{
 					return (Std.parseInt(v)!=null && FileSystem.isDirectory(manga+"/"+v));								
 				});
+		if (sorted.length == 0)
+		{
+			lastChapter = 0;
+			return;
+		}
 		var intArray = sorted.map(function(v:String):Int {return Std.parseInt(v);});
 		intArray.sort(
 					function(a:Int,b:Int){
 					if (a < b) {return -1;}
 					if (a == b) {return 0;}
 					return 1;});
-					
-		lastChapter = intArray.pop();
+		lastChapter = intArray[0];
 		
 	}
 	

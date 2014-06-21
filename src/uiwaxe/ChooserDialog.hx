@@ -115,7 +115,6 @@ class ChooserDialog extends Dialog
 						return;
 					
 					var chapter = Std.int(Math.max(manga.currentChapterRead,Std.parseInt(unLPad(manga.getChapterList()[0]))));
-					trace(chapter,manga.getChapterList()[0]);
 					viewer.display(manga.name,chapter,manga.currentPageRead);
 				}
 				close();

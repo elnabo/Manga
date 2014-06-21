@@ -119,6 +119,7 @@ class ImageViewer extends Panel
 				}
 				_mangaDB = Manga.get(manga);
 			}
+			
 			_manga = manga;
 			if (_chap != chap && _chap != -1)
 			{

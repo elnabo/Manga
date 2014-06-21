@@ -103,7 +103,8 @@ class UIMain
 		
 		imgViewer = new ImageViewer(mFrame,null,{x:0,y:0},null);
 		
-		mFrame.setIcon(Icon.createFromFile("../assets/logo64.ico",WxBitmapType.wxBITMAP_TYPE_ICO));
+		var ico = Icon.createFromBytes(haxe.Resource.getBytes("logo"));		
+		mFrame.setIcon(ico);
 		
 	}
 	

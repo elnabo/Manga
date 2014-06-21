@@ -5,6 +5,7 @@ import db.Manga;
 
 import haxe.Http;
 import haxe.io.Bytes;
+import haxe.io.BytesOutput;
 import haxe.io.BytesBuffer;
 import sys.io.File;
 import sys.io.FileOutput;
@@ -143,7 +144,7 @@ class Download
 	{
 		var h:Http = new Http(url);
 		h.addHeader("Range","");
-		h.customRequest(false,null,null,"HEAD");
+		h.customRequest(false,new BytesOutput(),null,"HEAD");
 		var headers = h.responseHeaders;
 		var res= (headers.exists("Accept-Ranges") && headers.get("Accept-Ranges") != "none"
 			&& headers.exists("Content-Length"));
@@ -169,7 +170,6 @@ class Download
 		if (manga == "") 
 			return;
 			
-		
 		var helper = Type.createInstance(Type.getClass(Download.helper), [manga]);
 
 		if (!helper.exists())
@@ -177,7 +177,6 @@ class Download
 			
 		var db_manga = manga.toLowerCase().split(" ").join("_");
 		var db_value:Manga = Manga.get(db_manga);
-			
 		if (db_value == null)
 		{
 			db_value = new Manga(db_manga, manga,(startChapter == 0) ? 0 : startChapter - 1);
