@@ -38,7 +38,6 @@ class UIMain
 				var evt = CommandEvent.create(downloadFinishedEvent);
 				evt.string = content;
 				evt.int = (b) ? 1 : 0;
-				trace(content);
 				wx.App.wakeUpIdle();
 				Event.queueEvent(mFrame,evt);
 			}
@@ -63,7 +62,6 @@ class UIMain
 													if (e1.downloadPriority == e2.downloadPriority) return 0;
 													return 1;});
 				
-				trace("new Start", mangas[0].rawName);
 				Download.threadedDownload(mangas[0].rawName);
 				
 			});
@@ -71,7 +69,6 @@ class UIMain
 		mFrame.setHandler(EventID.ICONIZE,
 			function(e:Dynamic)
 			{
-				trace(e);
 				//Do not pause
 			});
 			
@@ -85,7 +82,6 @@ class UIMain
 					Sys.sleep(1);
 					wx.App.wakeUpIdle();
 				}
-				//Do not pause
 			});
 			
 		var menu = new MenuBar();
