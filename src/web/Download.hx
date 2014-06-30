@@ -37,9 +37,6 @@ class Download
 	
 	public static var onFinish(null,default):Manga->Bool->Void = function(_,_){};
 	
-	/* To do check integrity 
-		Test if final size = original size
-		*/
 	/** 
 	 * Download the file. 
 	 * Return true on success, false on failure

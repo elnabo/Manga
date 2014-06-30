@@ -1,5 +1,7 @@
 package db;
 
+import utils.Utility;
+
 import sys.FileSystem;
 import sys.db.Manager;
 import sys.db.Object;
@@ -105,20 +107,6 @@ class Manga extends Object
 	{
 		var path = basePath+name+"/"+StringTools.lpad(""+chapter,"0",4);
 		return FileSystem.exists(path) && FileSystem.isDirectory(path) && chapter <= lastChapterDownloaded ;
-	}
-	
-	public function unLPad( s : String, p : String = "0" ) : String 
-	{
-		var l = s.length;
-		var r = 0;
-		while( r < l && s.charAt(r) == p )
-		{
-			r++;
-		}
-		if( r > 0 )
-			return s.substr(r, l-r);
-		else
-			return s;
 	}
 	
 	public static var manager = new Manager<Manga>(Manga);

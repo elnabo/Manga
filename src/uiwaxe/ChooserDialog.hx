@@ -1,6 +1,7 @@
 package uiwaxe;
 
 import db.Manga;
+import utils.Utility;
 
 import wx.Alignment;
 import wx.Button;
@@ -85,7 +86,7 @@ class ChooserDialog extends Dialog
 					e.skip = true;
 					return;
 				}
-				manga.currentChapterRead = Std.int(Math.min(manga.currentChapterRead,Std.parseInt(unLPad(list[0]))));
+				manga.currentChapterRead = Std.int(Math.min(manga.currentChapterRead,Std.parseInt(Utility.unLPad(list[0]))));
 				for (chapter in list)
 				{
 					chapterList.append(chapter);
@@ -107,14 +108,14 @@ class ChooserDialog extends Dialog
 					if (chapterList.value == null)
 						return;
 		
-					viewer.display(manga.name,Std.parseInt(unLPad(chapterList.value)), 1);
+					viewer.display(manga.name,Std.parseInt(Utility.unLPad(chapterList.value)), 1);
 				}
 				else
 				{
 					if (mangaList.value == null)
 						return;
 					
-					var chapter = Std.int(Math.max(manga.currentChapterRead,Std.parseInt(unLPad(manga.getChapterList()[0]))));
+					var chapter = Std.int(Math.max(manga.currentChapterRead,Std.parseInt(Utility.unLPad(manga.getChapterList()[0]))));
 					viewer.display(manga.name,chapter,manga.currentPageRead);
 				}
 				close();
@@ -126,19 +127,5 @@ class ChooserDialog extends Dialog
 			};
 	}
 	
-	public function unLPad( s : String, p : String = "0" ) : String 
-	{
-		if (s == null) { return ""; }
-		var l = s.length;
-		var r = 0;
-		while( r < l && s.charAt(r) == p )
-		{
-			r++;
-		}
-		if( r > 0 )
-			return s.substr(r, l-r);
-		else
-			return s;
-	}
 	static var wx_dialog_create:Array<Dynamic>->Dynamic = Loader.load("wx_dialog_create",1);
 }

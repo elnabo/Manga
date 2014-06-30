@@ -38,12 +38,15 @@ class UIMain
 				var evt = CommandEvent.create(downloadFinishedEvent);
 				evt.string = content;
 				evt.int = (b) ? 1 : 0;
+				trace(content);
+				wx.App.wakeUpIdle();
 				Event.queueEvent(mFrame,evt);
 			}
 			
 		mFrame.customHandler(downloadFinishedEvent, 
 			function(e:Dynamic)
 			{
+				wx.App.wakeUpIdle();
 				if (e.int == 1)
 				{
 					new Popup(mFrame,null,"Download finished",e.string,{width:300,height:150});
@@ -60,15 +63,36 @@ class UIMain
 													if (e1.downloadPriority == e2.downloadPriority) return 0;
 													return 1;});
 				
+				trace("new Start", mangas[0].rawName);
 				Download.threadedDownload(mangas[0].rawName);
 				
+			});
+			
+		mFrame.setHandler(EventID.ICONIZE,
+			function(e:Dynamic)
+			{
+				trace(e);
+				//Do not pause
+			});
+			
+			
+			// Works but cpu bound
+		mFrame.setHandler(EventID.IDLE,
+			function(e:Dynamic)
+			{
+				if (mFrame.isIconized())
+				{
+					Sys.sleep(1);
+					wx.App.wakeUpIdle();
+				}
+				//Do not pause
 			});
 			
 		var menu = new MenuBar();
 		var id = 0;
 		
 		var file = new Menu("");
-		
+			
 		file.append(id,"Exit","Exit the application");
 		mFrame.handle(id++, close);
 		menu.append(file,"File");
@@ -87,8 +111,15 @@ class UIMain
 		menu.append(manga,"Manga");
 		
 		var convert = new Menu("");
+		convert.append(id,"Export", "Export a manga");
+		mFrame.handle(id++, function (_) 
+			{
+				new ExportDialog(mFrame,null,"Export a manga",{width:300,height:200});
+			});
 		convert.append(id,"Import", "Import a manga");
-		mFrame.handle(id++, function (_) {} );
+		mFrame.handle(id++, function (_) 
+			{
+			});
 		menu.append(convert,"Convert");
 		
 		var status = new Menu("");
