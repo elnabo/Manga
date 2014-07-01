@@ -77,7 +77,7 @@ class UIMain
 		mFrame.setHandler(EventID.IDLE,
 			function(e:Dynamic)
 			{
-				if (mFrame.isIconized())
+				if (mFrame.isIconized() || !mFrame.isActive())
 				{
 					Sys.sleep(1);
 					wx.App.wakeUpIdle();
