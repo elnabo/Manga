@@ -5,12 +5,17 @@ import haxe.zip.Entry;
 import haxe.zip.Writer;
 
 import utils.Utility;
+import utils.TempFileName;
+
+import wx.Bitmap;
+import wx.Image;
+
 import sys.FileSystem;
 import sys.io.File;
 
 class Export
 {
-	public static function toCBZ(manga:String, ?from:Int=1,?to:Int=10000)
+	public static function toCBZ(manga:String, ?from:Int=1,?to:Int=10000, ?rotate:Bool=false)
 	{
 		var path = Main.mangaPath + manga;
 		var epath = Main.exportPath + "/" + manga;
@@ -45,8 +50,18 @@ class Export
 						var pn = Std.parseInt(Utility.unLPad(img));
 						if (!FileSystem.isDirectory(cpath+"/"+img) && pn != null)
 						{
-							var f = File.read(cpath+"/"+img);
-							var bytes = f.readAll();
+							var tmpPath = Sys.getCwd();
+							
+							while (FileSystem.exists(tmpPath))
+								tmpPath = TempFileName.next();
+								
+							var f = Image.fromFile(cpath+"/"+img, wxBITMAP_TYPE_JPEG);
+							if (rotate && (f.width > f.height))
+								f.rotate(90);
+							var bytes = f.getBytes(tmpPath);
+							
+							if (bytes == null || bytes.length == 0)
+								continue;
 							
 							entries.add({
 										fileName: StringTools.lpad(img,"0",3),
@@ -58,8 +73,6 @@ class Export
 										crc32 : Crc32.make(bytes),
 										extraFields : new List()
 										});
-										
-							f.close();
 						}
 					}
 				}

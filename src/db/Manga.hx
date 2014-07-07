@@ -34,6 +34,7 @@ class Manga extends Object
 	public var currentChapterRead:SSmallInt;
 	public var downloadStatus:SSmallInt;
 	public var downloadPriority:SSmallInt;
+	public var recentDownload:SSmallInt;
 	
 	private static var basePath:String = "";
 	private static var m:Mutex = new Mutex();
@@ -49,6 +50,7 @@ class Manga extends Object
 		currentChapterRead = 1;
 		downloadStatus = 2;
 		downloadPriority = Type.enumIndex(Priority.NORMAL);
+		recentDownload = 1;
 	}
 	
 	override public function update()

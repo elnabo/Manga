@@ -129,6 +129,7 @@ class ImageViewer extends Panel
 			_page = page;
 			if (_mangaDB != null)
 			{
+				_mangaDB.recentDownload = 0;
 				_mangaDB.currentChapterRead = _chap;
 				_mangaDB.currentPageRead = _page;
 				_mangaDB.update();

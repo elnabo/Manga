@@ -52,7 +52,7 @@ class ChooserDialog extends Dialog
 				for (manga in Manga.all())
 				{
 					if (manga.lastChapterDownloaded > 0)
-						mangaList.append(manga.rawName);
+						mangaList.append(((manga.recentDownload == 1) ? "[new] " : "      ") +manga.rawName);
 				}
 				mangaList.selection = mangaList.find_string(viewer._manga);
 				e.skip = true;
@@ -73,7 +73,7 @@ class ChooserDialog extends Dialog
 					
 				chapterList.clear();
 				chapterList.label = "Select a chapter";
-				var manga = Manga.getFromRaw(mangaList.value);
+				var manga = Manga.getFromRaw(mangaList.value.substr(6));
 				if (manga == null || manga.lastChapterDownloaded == 0)
 				{					
 					return;
@@ -99,7 +99,7 @@ class ChooserDialog extends Dialog
 		var validate = Button.create(this,null, "Validate",{x:45,y:130},{width:100,height:30},null);
 		validate.onClick = function(_)
 			{
-				var manga = Manga.getFromRaw(mangaList.value);
+				var manga = Manga.getFromRaw(mangaList.value.substr(6));
 				if (manga == null)
 					return;
 					

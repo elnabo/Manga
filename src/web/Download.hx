@@ -23,7 +23,6 @@ import neko.vm.Thread;
 
 class Error
 {
-	//~ public static var tooManyActiveConnections(default,null):String = "Too many active connections";
 	public static var invalidName(default,null):String = "Invalid manga name";
 	public static var notAvailable(default,null):String = "This manga isn't available";
 }
@@ -230,6 +229,7 @@ class Download
 				}
 
 				db_value.lastChapterDownloaded = chap;
+				db_value.recentDownload = 1;
 				chap++;
 				
 				db_value.update();
