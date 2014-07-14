@@ -9,7 +9,6 @@ import wx.Choice;
 import wx.Dialog;
 import wx.Loader;
 import wx.RadioButton;
-import wx.StaticText;
 import wx.Window;
 
 class ChooserDialog extends Dialog
@@ -24,11 +23,16 @@ class ChooserDialog extends Dialog
 		inParent.disable();
 		onClose = function(_) { inParent.enable(); destroy();}
 		
-		var initNames = Manga.all().filter(function(x:Manga):Bool { return x.lastChapterDownloaded > 0;});
-		var names = Lambda.array(Lambda.map(initNames, function (x:Manga):String {return x.rawName;}));
+		var names:Array<String> = new Array<String>();
+		for (m in Manga.all())
+		{
+			if (m.lastChapterDownloaded > 0)
+				names.push(((m.recentDownload == 1) ? "[new] " : "") +m.rawName);
+		}
 		
 		var mangaList = Choice.create(this,null,{x:22,y:20},{width:inSize.width-50,height:20},names);
 		mangaList.selection = mangaList.find_string(viewer._manga);
+		
 		
 		var lastRead = RadioButton.create(this,null,"Continue from last read",{x:20,y:50},null,RadioButton.wxRB_GROUP);
 		var fromChapter = RadioButton.create(this,null,"Go to",{x:20,y:70},null,0);
@@ -44,62 +48,47 @@ class ChooserDialog extends Dialog
 		}
 		var chapterList = Choice.create(this,null,{x:47,y:90},{width:inSize.width-100,height:20},chaps);
 		
-		
-		mangaList.setHandler(wx.EventID.SET_FOCUS, function (e:Dynamic) 
+		mangaList.setHandler(wx.EventID.CHOICE, function (e:Dynamic)
 			{
-				mangaList.clear();
-				mangaList.label = "Select a manga";
-				for (manga in Manga.all())
-				{
-					if (manga.lastChapterDownloaded > 0)
-						mangaList.append(((manga.recentDownload == 1) ? "[new] " : "      ") +manga.rawName);
-				}
-				mangaList.selection = mangaList.find_string(viewer._manga);
-				e.skip = true;
-				
 				chapterList.clear();
-			});
-			
-		
-		chapterList.selection = chapterList.find_string(StringTools.lpad(""+viewer._chap,"0",4));
-		chapterList.setHandler(wx.EventID.SET_FOCUS, function (e:Dynamic) 
-			{
-				if (mangaList.value == null)
-				{
-					return;
-				}
-				
-				fromChapter.value = true;
-					
-				chapterList.clear();
-				chapterList.label = "Select a chapter";
-				var manga = Manga.getFromRaw(mangaList.value.substr(6));
+				var manga = Manga.getFromRaw(valueToName(e.string));
 				if (manga == null || manga.lastChapterDownloaded == 0)
 				{					
 					return;
 				}
-				
-				
 				var list = manga.getChapterList();
 				if (list==null || list.length == 0)
 				{
 					e.skip = true;
 					return;
 				}
-				manga.currentChapterRead = Std.int(Math.min(manga.currentChapterRead,Std.parseInt(Utility.unLPad(list[0]))));
 				for (chapter in list)
 				{
 					chapterList.append(chapter);
 				}
-				chapterList.selection = chapterList.find_string(StringTools.lpad(""+viewer._chap,"0",4));
+				
+				var chapSelected = -1;
+				if (viewer._manga == manga.name)
+				{
+					chapSelected = viewer._chap;
+				}
+				else
+				{
+					chapSelected = Std.int(Math.max(manga.currentChapterRead,Std.parseInt(Utility.unLPad(list[0]))));
+				}
+				chapterList.selection = chapterList.find_string(StringTools.lpad(""+chapSelected,"0",4));
 				e.skip = true;
 			});
-		
+			
+			chapterList.setHandler(wx.EventID.CHOICE, function (e:Dynamic)
+			{
+				fromChapter.value = true;	
+			});
 			
 		var validate = Button.create(this,null, "Validate",{x:45,y:130},{width:100,height:30},null);
 		validate.onClick = function(_)
 			{
-				var manga = Manga.getFromRaw(mangaList.value.substr(6));
+				var manga = Manga.getFromRaw(valueToName(mangaList.value));
 				if (manga == null)
 					return;
 					
@@ -125,6 +114,15 @@ class ChooserDialog extends Dialog
 			{
 				close();
 			};
+	}
+	
+	function valueToName(value:String):String
+	{
+		if (value.substr(0,5) == "[new]")
+		{
+			return value.substr(6);
+		}
+		return value;
 	}
 	
 	static var wx_dialog_create:Array<Dynamic>->Dynamic = Loader.load("wx_dialog_create",1);

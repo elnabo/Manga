@@ -110,7 +110,7 @@ class UIMain
 		convert.append(id,"Export", "Export a manga");
 		mFrame.handle(id++, function (_) 
 			{
-				new ExportDialog(mFrame,null,"Export a manga",{width:300,height:200});
+				new ExportDialog(mFrame,null,"Export a manga",{width:300,height:220});
 			});
 		convert.append(id,"Import", "Import a manga");
 		mFrame.handle(id++, function (_) 

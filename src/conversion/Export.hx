@@ -13,6 +13,12 @@ import wx.Image;
 import sys.FileSystem;
 import sys.io.File;
 
+#if cpp
+import cpp.vm.Thread;
+#elseif neko
+import neko.vm.Thread;
+#end
+
 class Export
 {
 	public static function toCBZ(manga:String, ?from:Int=1,?to:Int=10000, ?rotate:Bool=false)
@@ -75,18 +81,27 @@ class Export
 										});
 						}
 					}
+					
+					var zipFile	= File.write(zipName);
+					var zipWriter = new Writer(zipFile);
+					zipWriter.write(entries);
+					zipFile.close();
 				}
-				
-				
-				var zipFile	= File.write(zipName);
-				var zipWriter = new Writer(zipFile);
-				zipWriter.write(entries);
-				zipFile.close();
 			} 
 			
 			return ;
 		}
 		
 		return ;
+	}
+	
+	public static function threadedToCBZ(manga:String, ?from:Int=1,?to:Int=10000, ?rotate:Bool=false,?onExit:Void->Void=null)
+	{
+		Thread.create(function()
+			{
+				toCBZ(manga,from,to,rotate);
+				if (onExit != null)
+					onExit();
+			});
 	}
 }
