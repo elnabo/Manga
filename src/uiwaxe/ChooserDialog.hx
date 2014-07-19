@@ -47,8 +47,6 @@ class ChooserDialog extends Dialog
 				}
 				
 				mangaList.selection = mangaList.find_string(manga.rawName);
-				trace(viewer._chap);
-				trace(chapterList.find_string(StringTools.lpad(""+viewer._chap,"0",4)));
 				chapterList.selection = chapterList.find_string(StringTools.lpad(""+viewer._chap,"0",4));
 			}
 		}		

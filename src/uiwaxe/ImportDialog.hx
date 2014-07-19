@@ -1,6 +1,6 @@
 package uiwaxe;
 
-import conversion.Export;
+import conversion.Import;
 import db.Manga;
 import utils.Utility;
 
@@ -11,12 +11,16 @@ import wx.Button;
 import wx.CheckBox;
 import wx.Choice;
 import wx.Dialog;
+import wx.FileDialog;
 import wx.Loader;
 import wx.StaticText;
+import wx.TextCtrl;
 import wx.Window;
 
 class ImportDialog extends Dialog
 {
+	var directory:String = Main.mangaPath;
+	
 	public function new (inParent:Window, inID:Null<Int>, inTitle:String="",
 						?inPosition:{x:Float,y:Float},
                    inSize:{width:Int,height:Int})
@@ -33,64 +37,55 @@ class ImportDialog extends Dialog
 			if (m.lastChapterDownloaded > 0)
 				names.push(m.rawName);
 		}
+				
+		var chooser = Button.create(this,null, "Choose a cbz",{x:20,y:15},{width:100,height:30},null);
+		var fileName = StaticText.create(this,null,"",{x:130,y:20},{width:100,height:20},Alignment.wxALIGN_LEFT);
+		var mangaInput = TextCtrl.create(this,null,null,{x:22,y:60},{width:150, height:20},null);
+		var chapterInput = TextCtrl.create(this,null,null,{x:175,y:60},{width:100, height:20},null);
 		
-		
-		var mangaList = Choice.create(this,null,{x:22,y:20},{width:inSize.width-50,height:20},names);
-		var checkRotate = CheckBox.create(this,null,"Rotate double page",{x:22,y:50});
-		StaticText.create(this,null,"From chapter",{x:22,y:80},{width:100,height:20},Alignment.wxALIGN_LEFT);
-		var startChoice = Choice.create(this,null,{x:130,y:80},{width:80,height:20},[]);
-		StaticText.create(this,null,"To ",{x:22,y:110},{width:100,height:20},Alignment.wxALIGN_LEFT);
-		var endChoice = Choice.create(this,null,{x:130,y:110},{width:80,height:20},[]);
-		
-		mangaList.setHandler(wx.EventID.CHOICE, function (e:Dynamic)
-		{
-			var manga = Manga.getFromRaw(e.string);
-			var mangaFolder = Main.mangaPath + ((manga==null) ? e.string : manga.name);
-			if (!FileSystem.exists(mangaFolder))
-				return;
-			
-			var i = 0;
-			startChoice.clear();
-			endChoice.clear();
-			for (folder in FileSystem.readDirectory(mangaFolder))
+		chooser.onClick = function(_)
 			{
-				if (FileSystem.isDirectory(mangaFolder+"/"+folder))
+				var e = new FileDialog(null, "Choose a cbz",Main.exportPath,"","CBZ files (*.cbz)|*.cbz|ZIP files (*.zip)|*.zip",FileDialog.OPEN);
+				e.showModal();
+				
+				directory = e.directory;
+				var f = e.files[0];
+				fileName.label = f;
+				
+				var noExt = f.split(".")[0];
+				if (noExt.indexOf("_") == -1)
 				{
-					startChoice.append(folder);
-					endChoice.append(folder);
-					i++;
+					var intValue = Std.parseInt(Utility.unLPad(noExt));
+					if (intValue != null)
+						chapterInput.value = ""+intValue;
+					else
+					{
+						var manga = Manga.get(noExt);
+						if (manga != null)
+							mangaInput.value = manga.rawName;
+					}
+				}
+				else
+				{
+					var s = noExt.split("_");
+					var intValue = Std.parseInt(Utility.unLPad(s.pop()));
+					if (intValue != null)
+						chapterInput.value = ""+intValue;
+					var manga = Manga.get(s.join("_"));
+					if (manga != null)
+						mangaInput.value = manga.rawName;
 				}
 			}
-			startChoice.selection = 0;
-			endChoice.selection = i-1;
-		});
 		
-		
-		startChoice.setHandler(wx.EventID.CHOICE, function (e:Dynamic)
-		{
-			if (startChoice.selection > endChoice.selection)
-				endChoice.selection = startChoice.selection;
-		});
-		
-		
-		endChoice.setHandler(wx.EventID.CHOICE, function (e:Dynamic)
-		{
-			if (startChoice.selection > endChoice.selection)
-				startChoice.selection = endChoice.selection;
-		});
-		
-		var validate = Button.create(this,null, "Validate",{x:45,y:140},{width:100,height:30},null);
+		var validate = Button.create(this,null, "Validate",{x:45,y:85},{width:100,height:30},null);
 		validate.onClick = function(_)
 			{
-				var manga = Manga.getFromRaw(mangaList.value);
-				var mangaFolder = (manga==null) ? mangaList.value : manga.name;
 				
-				Export.threadedToCBZ(mangaFolder,Std.parseInt(Utility.unLPad(startChoice.value)),
-							Std.parseInt(Utility.unLPad(endChoice.value)), checkRotate.checked);
+				Import.threadedFromCBZ(directory+"/"+fileName.label, mangaInput.value, Std.parseInt(chapterInput.value));
 				close();
 			}
 		
-		var cancel = Button.create(this,null, "Cancel",{x:155,y:140},{width:100,height:30},null);
+		var cancel = Button.create(this,null, "Cancel",{x:155,y:85},{width:100,height:30},null);
 		cancel.onClick = function(_)
 			{
 				close();
