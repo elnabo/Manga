@@ -36,7 +36,6 @@ class Manga extends Object
 	public var downloadPriority:SSmallInt;
 	public var recentDownload:SSmallInt;
 	
-	private static var basePath:String = "";
 	private static var m:Mutex = new Mutex();
 	
 	public function new(name:String,rawName:String,?lastChapterDownloaded:Int=0)
@@ -83,6 +82,7 @@ class Manga extends Object
 			return query.first();
 		return null;
 	}
+	
 	public static function getFromRaw(manga:String):Manga
 	{
 		m.acquire();
@@ -93,9 +93,15 @@ class Manga extends Object
 		return null;
 	}
 	
+	public static function findSimilar(manga:String):Manga
+	{
+		var lc = manga.toLowerCase().split(" ").join("_");
+		return get(lc);
+	}
+	
 	public function getChapterList():Array<String>
 	{
-		var path = basePath+name+"/";
+		var path = Main.mangaPath+name+"/";
 		return Lambda.array(Lambda.filter(
 			FileSystem.readDirectory(path),
 			function (e) 
@@ -107,8 +113,8 @@ class Manga extends Object
 	
 	public function chapterExists(chapter:Int)
 	{
-		var path = basePath+name+"/"+StringTools.lpad(""+chapter,"0",4);
-		return FileSystem.exists(path) && FileSystem.isDirectory(path) && chapter <= lastChapterDownloaded ;
+		var path = Main.mangaPath+name+"/"+StringTools.lpad(""+chapter,"0",4);
+		return FileSystem.exists(path) && FileSystem.isDirectory(path);
 	}
 	
 	public static var manager = new Manager<Manga>(Manga);

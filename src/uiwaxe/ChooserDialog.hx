@@ -31,27 +31,38 @@ class ChooserDialog extends Dialog
 		}
 		
 		var mangaList = Choice.create(this,null,{x:22,y:20},{width:inSize.width-50,height:20},names);
-		mangaList.selection = mangaList.find_string(viewer._manga);
 		
+		var chapterList = Choice.create(this,null,{x:47,y:90},{width:inSize.width-100,height:20},[]);
+		if (viewer._manga != null)
+		{
+			var manga = Manga.get(viewer._manga);
+			if (manga != null)
+			{
+				if (manga.lastChapterDownloaded != 0)
+				{
+					for (chap in manga.getChapterList())
+					{
+						chapterList.append(chap);
+					}
+				}
+				
+				mangaList.selection = mangaList.find_string(manga.rawName);
+				trace(viewer._chap);
+				trace(chapterList.find_string(StringTools.lpad(""+viewer._chap,"0",4)));
+				chapterList.selection = chapterList.find_string(StringTools.lpad(""+viewer._chap,"0",4));
+			}
+		}		
 		
 		var lastRead = RadioButton.create(this,null,"Continue from last read",{x:20,y:50},null,RadioButton.wxRB_GROUP);
 		var fromChapter = RadioButton.create(this,null,"Go to",{x:20,y:70},null,0);
 		
-		var chaps:Array<String> = [];
-		if (viewer._manga != null)
-		{
-			var manga = Manga.get(mangaList.value);
-			if (manga != null && manga.lastChapterDownloaded != 0)
-			{
-				chaps = manga.getChapterList();
-			}
-		}
-		var chapterList = Choice.create(this,null,{x:47,y:90},{width:inSize.width-100,height:20},chaps);
+		
 		
 		mangaList.setHandler(wx.EventID.CHOICE, function (e:Dynamic)
 			{
 				chapterList.clear();
 				var manga = Manga.getFromRaw(valueToName(e.string));
+				
 				if (manga == null || manga.lastChapterDownloaded == 0)
 				{					
 					return;
@@ -68,7 +79,7 @@ class ChooserDialog extends Dialog
 				}
 				
 				var chapSelected = -1;
-				if (viewer._manga == manga.name)
+				if (viewer._manga == manga.rawName)
 				{
 					chapSelected = viewer._chap;
 				}
@@ -77,7 +88,7 @@ class ChooserDialog extends Dialog
 					chapSelected = Std.int(Math.max(manga.currentChapterRead,Std.parseInt(Utility.unLPad(list[0]))));
 				}
 				chapterList.selection = chapterList.find_string(StringTools.lpad(""+chapSelected,"0",4));
-				e.skip = true;
+				
 			});
 			
 			chapterList.setHandler(wx.EventID.CHOICE, function (e:Dynamic)

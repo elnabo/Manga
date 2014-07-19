@@ -17,7 +17,7 @@ import wx.App;
 class Main
 {
 	public static var db(default,never) = "manga.db";
-	public static var mangaPath(default,never) = "";
+	public static var mangaPath(default,never) = "manga/";
 	public static var exportPath(default,never) = "export/";
 	
 	public function new()

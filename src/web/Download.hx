@@ -29,7 +29,7 @@ class Error
 
 class Download
 {
-	private static var helper:Plugin = new MangaReaderPlugin();
+	private static var helper:Plugin = new MangaPandaPlugin();//MangaReaderPlugin();
 	private static var activeConnections:Int = 0;
 	private static var maxActiveConnections:Int = 2;
 	private static var currentDownloads:Array<String> = new Array<String>();
@@ -42,7 +42,7 @@ class Download
 	 */
 	public static function file(url:String, to:String,?overwrite:Bool=false, ?maxConnections:Int=2)
 	{
-		if (overwrite && FileSystem.exists(to))
+		if (!overwrite && FileSystem.exists(to))
 			return true;
 			
 		try
@@ -53,6 +53,10 @@ class Download
 			// Test if server accept range request
 			var res:Pair<Bool,Int> = acceptRange(url);
 			var length:Int = res.v;
+			// Invalid file
+			if (length == 0)
+				return true;
+				
 			var bytes:Bytes;
 			
 			if( res.k && #if (neko || cpp) true #else false #end)
@@ -183,7 +187,7 @@ class Download
 			return;
 			
 		db_value.downloadStatus = 2;
-		
+
 		if (activeConnections >= maxActiveConnections)
 		{
 			return;
@@ -199,7 +203,7 @@ class Download
 		var haveDownload = false;
 		while (helper.doesChapterExists(chap))
 		{
-			var directory:String = db_manga+"/"+StringTools.lpad(""+chap,"0",4);
+			var directory:String = Main.mangaPath + db_manga+"/"+StringTools.lpad(""+chap,"0",4);
 			FileSystem.createDirectory(directory);
 			try
 			{

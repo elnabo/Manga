@@ -103,7 +103,7 @@ class ImageViewer extends Panel
 	
 	public function display(manga:String,chap:Int,page:Int)
 	{
-		var path = manga+"/"+StringTools.lpad(""+chap,"0",4)+"/"+StringTools.lpad(""+page,"0",3)+".jpg";
+		var path = Main.mangaPath + manga+"/"+StringTools.lpad(""+chap,"0",4)+"/"+StringTools.lpad(""+page,"0",3)+".jpg";
 		if (FileSystem.exists(path))
 		{
 			_fullImage = Image.fromFile(path,wxBITMAP_TYPE_JPEG);
@@ -155,7 +155,7 @@ class ImageViewer extends Panel
 	
 	private function getLastPageNumber(manga:String, chap:Int)
 	{
-		var path = manga+"/"+StringTools.lpad(""+chap,"0",4)+"/";
+		var path = Main.mangaPath + manga+"/"+StringTools.lpad(""+chap,"0",4)+"/";
 		if (FileSystem.exists(path) && FileSystem.isDirectory(path))
 			return FileSystem.readDirectory(path).length;
 		return -1;
@@ -166,7 +166,7 @@ class ImageViewer extends Panel
 		if (_manga == null)
 			return;
 			
-		if (FileSystem.exists(_manga+"/"+StringTools.lpad(""+_chap,"0",4)+"/"+StringTools.lpad(""+(_page+1),"0",3)+".jpg"))
+		if (FileSystem.exists(Main.mangaPath + _manga+"/"+StringTools.lpad(""+_chap,"0",4)+"/"+StringTools.lpad(""+(_page+1),"0",3)+".jpg"))
 		{
 			display(_manga,_chap,_page+1);
 			return;
