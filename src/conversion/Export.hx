@@ -63,7 +63,7 @@ class Export
 								
 							var f = Image.fromFile(cpath+"/"+img, wxBITMAP_TYPE_JPEG);
 							if (rotate && (f.width > f.height))
-								f.rotate(90);
+								f.rotate90(false);
 							var bytes = f.getBytes(tmpPath);
 							
 							if (bytes == null || bytes.length == 0)

@@ -86,7 +86,7 @@ class ImageViewer extends Panel
 			{
 				_currentScale = clamp((_currentScale + (e.wheelRotation > 0 ? 1 : -1)/20),0.5,2);
 				zoom(_currentScale);
-				scroll(0,0);
+				//~ scroll(0,0);
 			});
 			
 		setHandler(EventID.SIZE,function(e:Dynamic):Void
@@ -95,6 +95,18 @@ class ImageViewer extends Panel
 				height = _parent.clientSize.height;
 				size = {width:width, height:height};
 					
+			});
+			
+		setHandler(EventID.KEY_UP, function(e:Dynamic):Void
+			{
+				// r pressed = image rotation
+				if (e.code == 82)
+				{
+					_fullImage = _fullImage.rotate90(true);
+					//~ _fullImage = _fullImage.rotate(90);
+					//~ _fullImage = _fullImage.rotate(0	);
+					zoom(_currentScale);
+				}
 			});
 		
 		_fullImage = _scaledImage = Image.getBlankImage(1,1);
