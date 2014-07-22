@@ -34,6 +34,7 @@ class Import
 		if (db_entry == null)
 		{
 			db_entry = new Manga(manga,db_manga);
+			db_entry.insert();
 			FileSystem.createDirectory(Main.mangaPath + db_manga);
 		}
 		

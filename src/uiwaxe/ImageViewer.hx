@@ -102,10 +102,7 @@ class ImageViewer extends Panel
 				// r pressed = image rotation
 				if (e.code == 82)
 				{
-					_fullImage = _fullImage.rotate90(true);
-					//~ _fullImage = _fullImage.rotate(90);
-					//~ _fullImage = _fullImage.rotate(0	);
-					zoom(_currentScale);
+					rotate();
 				}
 			});
 		
@@ -128,6 +125,10 @@ class ImageViewer extends Panel
 				if (_mangaDB != null)
 				{
 					_mangaDB.update();
+				}
+				else
+				{
+					UIMain.manga.enable(UIMain.rotateId,true);
 				}
 				_mangaDB = Manga.get(manga);
 			}
@@ -217,6 +218,12 @@ class ImageViewer extends Panel
 			_scaledImage.rescale(Std.int(_fullImage.width*scale), Std.int(_fullImage.height*scale), wxIMAGE_QUALITY_NEAREST);
 		}
 		refresh();
+	}
+	
+	public function rotate()
+	{		
+		_fullImage = _fullImage.rotate90(true);
+		zoom(_currentScale);
 	}
 	
 	function paintWindow(dc:wx.DC)

@@ -9,7 +9,7 @@ class MangaDoomPlugin extends Plugin
 	
 	private var regex:String;
 	
-	@override private function set_manga(value:String) {_manga = StringTools.trim(value); findLastChapterLocal(); imgRegex = new EReg("<img id.*?\"(http.*?)\".*?.*?wpm_nav_nxt = \"http://mangadoom.com/"+manga+"/([0-9]+)/","is"); return _manga;}
+	override private function set_manga(value:String) {_manga = StringTools.trim(value); findLastChapterLocal(); imgRegex = new EReg("<img id.*?\"(http.*?)\".*?.*?wpm_nav_nxt = \"http://mangadoom.com/"+manga+"/([0-9]+)/","is"); return _manga;}
 	
 	
 	public function new(?manga:String=null)

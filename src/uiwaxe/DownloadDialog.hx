@@ -4,6 +4,7 @@ import web.Download;
 
 import wx.Alignment;
 import wx.Button;
+import wx.Choice;
 import wx.Dialog;
 import wx.Loader;
 import wx.StaticText;
@@ -31,11 +32,13 @@ class DownloadDialog extends Dialog
 		StaticText.create(this,null,"From chapter",{x:52,y:60},{width:100,height:20},Alignment.wxALIGN_LEFT);
 		var chapInput = TextCtrl.create(this,null,"1",{x:152,y:60},{width:70, height:20},null);
 		
-		txtButton = Button.create(this,null, "Download",{x:47,y:90},{width:inSize.width - 100,height:30},null);
+		StaticText.create(this,null,"On", {x:52, y:90}, {width:30, height:20},Alignment.wxALIGN_LEFT);
+		var pluginChoice = Choice.create(this,null,{x:82,y:85},{width:140,height:25},Main.plugins);
+		pluginChoice.selection = 0;
 		
+		txtButton = Button.create(this,null, "Download",{x:45,y:120},{width:100,height:30},null);		
 		
-		
-		txtError = StaticText.create(this,null,null,{x:0,y:135},{width:inSize.width,height:40},Alignment.wxALIGN_CENTER);
+		txtError = StaticText.create(this,null,null,{x:0,y:155},{width:inSize.width,height:40},Alignment.wxALIGN_CENTER);
 		txtError.setForegroundColor(255,0,0,255);
 		txtError.setFontSize(14);
 		
@@ -50,25 +53,33 @@ class DownloadDialog extends Dialog
 				
 				try
 				{
-					Download.test(txtInput.value);
+					Download.test(txtInput.value, Main.importPlugins[pluginChoice.selection]);
 				}
 				catch (e:String)
 				{
 					switch(e)
 					{
 						case Error.invalidName:
-							txtError.label = "Invalid name";
+							txtError.label = e;
 						case Error.notAvailable:
-							txtError.label = "The manga is not available";
+							txtError.label = e+Main.plugins[pluginChoice.selection];
+						case Error.plugin:
+							txtError.label = e;
 						case _:
 							txtError.label = "An unknown error occurred";
 					}
 					return;
 				}
 				
-				Download.threadedDownload(txtInput.value, chap);
+				Download.threadedDownload(txtInput.value,Main.importPlugins[pluginChoice.selection], chap);
 				
 				
+				close();
+			};
+			
+		var cancel = Button.create(this,null, "Cancel",{x:155,y:120},{width:100,height:30},null);
+		cancel.onClick = function(_)
+			{
 				close();
 			};
 			

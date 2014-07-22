@@ -11,7 +11,8 @@ import sys.io.File;
 import sys.io.FileOutput;
 import sys.FileSystem;
 
-import plugin.*;
+//~ import plugin.Plugin;
+//~ import plugin.*;
 
 #if cpp
 import cpp.vm.Deque;
@@ -24,12 +25,14 @@ import neko.vm.Thread;
 class Error
 {
 	public static var invalidName(default,null):String = "Invalid manga name";
-	public static var notAvailable(default,null):String = "This manga isn't available";
+	public static var notAvailable(default,null):String = "This manga isn't available on ";
+	public static var plugin(default,null):String = "This plugin isn't present";
 }
 
 class Download
 {
-	private static var helper:Plugin = new MangaPandaPlugin();//MangaReaderPlugin();
+	//~ private static var helper:Plugin = new MangaPandaPlugin();//MangaReaderPlugin();
+	//~ private static var helper:Plugin = new MangaFoxPlugin();//MangaReaderPlugin();
 	private static var activeConnections:Int = 0;
 	private static var maxActiveConnections:Int = 2;
 	private static var currentDownloads:Array<String> = new Array<String>();
@@ -152,25 +155,32 @@ class Download
 		return new Pair<Bool,Int>(res, Std.parseInt(headers.get("Content-Length")));
 	}
 	
-	public static function test(manga:String)
+	public static function test(manga:String, plugin:String)
 	{
 		manga = StringTools.trim(manga);
 		if (manga == "") 
 			throw Error.invalidName;
 			
-		var helper = Type.createInstance(Type.getClass(Download.helper), [manga]);
+		var cls = Type.resolveClass(plugin);
+		if (Type.resolveClass("plugin.Plugin") != Type.getSuperClass(cls))
+			throw Error.plugin;
+			
+		var helper = Type.createInstance(cls, [manga]);
 		if (!helper.exists())
 			throw Error.notAvailable;
 	}
 	
-	public static function download(manga:String, ?startChapter:Int=0)
+	public static function download(manga:String, plugin:String, ?startChapter:Int=0)
 	{
 		manga = StringTools.trim(manga);
 		
 		if (manga == "") 
 			return;
 			
-		var helper = Type.createInstance(Type.getClass(Download.helper), [manga]);
+		var cls = Type.resolveClass(plugin);
+		if (Type.resolveClass("plugin.Plugin") != Type.getSuperClass(cls))
+			return;
+		var helper = Type.createInstance(cls, [manga]);
 
 		if (!helper.exists())
 			return;
@@ -179,8 +189,12 @@ class Download
 		var db_value:Manga = Manga.get(db_manga);
 		if (db_value == null)
 		{
-			db_value = new Manga(db_manga, manga,(startChapter == 0) ? 0 : startChapter - 1);
+			db_value = new Manga(db_manga, manga,(startChapter == 0) ? 0 : startChapter - 1, plugin);
 			db_value.insert();
+		}
+		else if (db_value.pluginName == "None")
+		{
+			db_value.pluginName = plugin;
 		}
 		
 		if (currentDownloads.indexOf(manga) != -1)
@@ -208,14 +222,13 @@ class Download
 			try
 			{
 				var page:Int = 1;
-				var imgPath:String;
 				while (true)
 				{
 					try
 					{
-						var imgURL = helper.getImageURL(chap,page);
+						var imgURL:String = helper.getImageURL(chap,page);
 						var imgType:String = imgURL.split(".").pop();
-						imgPath = directory+"/"+StringTools.lpad(""+page,"0",3)+"."+imgType;
+						var imgPath:String = directory+"/"+StringTools.lpad(""+page,"0",3)+"."+imgType;
 						while (true)
 						{
 							if (Download.file(imgURL,imgPath))
@@ -256,11 +269,11 @@ class Download
 		onFinish(db_value,haveDownload);
 	}
 	
-	public static function threadedDownload(manga:String,?startChapter:Int=0,?onExit:Void->Void=null)
+	public static function threadedDownload(manga:String, plugin:String,?startChapter:Int=0,?onExit:Void->Void=null)
 	{
 		Thread.create(function()
 			{
-				download(manga,startChapter);
+				download(manga,plugin,startChapter);
 				if (onExit != null)
 					onExit();
 			});

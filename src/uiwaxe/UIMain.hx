@@ -21,6 +21,8 @@ class UIMain
 	public static var onClose:Void->Void;
 	var imgViewer:ImageViewer;
 	var mFrame:Frame;
+	public static var manga:Menu;
+	public static var rotateId:Int;
 	
 	public function new()
 	{
@@ -48,7 +50,7 @@ class UIMain
 				wx.App.wakeUpIdle();
 				if (e.int == 1)
 				{
-					new Popup(mFrame,null,"Download finished",e.string,{width:300,height:150});
+					new Popup(mFrame,null,"Download finished",e.string,{width:300,height:200});
 				}
 				
 				var mangas = Lambda.array(Manga.all().filter(
@@ -62,7 +64,8 @@ class UIMain
 													if (e1.downloadPriority == e2.downloadPriority) return 0;
 													return 1;});
 				
-				Download.threadedDownload(mangas[0].rawName);
+				if ( mangas[0].pluginName != "None")
+					Download.threadedDownload(mangas[0].rawName, mangas[0].pluginName);
 				
 			});
 			
@@ -93,7 +96,7 @@ class UIMain
 		mFrame.handle(id++, close);
 		menu.append(file,"File");
 		
-		var manga = new Menu("");
+		manga = new Menu("");
 		manga.append(id,"Download", "Download a manga");
 		mFrame.handle(id++, function (_) 
 			{
@@ -103,6 +106,13 @@ class UIMain
 		mFrame.handle(id++, function (_) 
 			{
 				new ChooserDialog(imgViewer,mFrame,null,"Choose a manga",{width:300,height:200});
+			});
+		manga.append(id,"Rotate image","");
+		manga.enable(id,false);
+		rotateId = id;
+		mFrame.handle(id++,function (_)
+			{
+				imgViewer.rotate();
 			});
 		menu.append(manga,"Manga");
 		

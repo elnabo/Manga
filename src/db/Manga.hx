@@ -35,10 +35,11 @@ class Manga extends Object
 	public var downloadStatus:SSmallInt;
 	public var downloadPriority:SSmallInt;
 	public var recentDownload:SSmallInt;
+	public var pluginName:SSmallText;
 	
 	private static var m:Mutex = new Mutex();
 	
-	public function new(name:String,rawName:String,?lastChapterDownloaded:Int=0)
+	public function new(name:String,rawName:String,?lastChapterDownloaded:Int=0, ?plugin:String="None")
 	{
 		super();
 		this.name = name;
@@ -50,6 +51,7 @@ class Manga extends Object
 		downloadStatus = 2;
 		downloadPriority = Type.enumIndex(Priority.NORMAL);
 		recentDownload = 1;
+		pluginName = plugin;
 	}
 	
 	override public function update()

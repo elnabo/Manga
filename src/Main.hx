@@ -20,11 +20,15 @@ class Main
 	public static var mangaPath(default,never) = "manga/";
 	public static var exportPath(default,never) = "export/";
 	
+	public static var plugins(default,null):Array<String> = [];
+	public static var importPlugins(default,null):Array<String> = [];
+	
 	public function new()
 	{
 		if (initDB())
 		{
 			cleanDB();
+			initPlugins();
 			UIMain.onClose = close;
 			new UIMain();
 			
@@ -81,11 +85,11 @@ class Main
 		var mangas = Lambda.array(Manga.all());
 		for (m in mangas)
 		{
-			if (m.downloadStatus == 0)
+			if (m.downloadStatus == 0 && m.pluginName != "None")
 			{
 				m.downloadPriority = Type.enumIndex(Priority.UPDATE);
 				m.update();
-				Download.threadedDownload(m.rawName);
+				Download.threadedDownload(m.rawName, m.pluginName);
 			}
 		}
 	}
@@ -103,10 +107,25 @@ class Main
 			});
 		for (m in mangas)
 		{
-			if (m.downloadStatus == 2)
+			if (m.downloadStatus == 2 && m.pluginName != "None")
 			{
 				
-				Download.threadedDownload(m.rawName);
+				Download.threadedDownload(m.rawName, m.pluginName);
+			}
+		}
+	}
+	
+	private static function initPlugins()
+	{
+		CompileTime.importPackage("plugin");
+		for ( cls in CompileTime.getAllClasses("plugin") )
+		{
+			var name = Type.getClassName(cls);
+			if (name != "plugin.Plugin")
+			{
+				importPlugins.push(name);				
+				var simpleName = name.split(".").pop();
+				plugins.push(simpleName.substr(0, simpleName.length-6));
 			}
 		}
 	}
