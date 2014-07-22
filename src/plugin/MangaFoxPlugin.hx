@@ -24,7 +24,9 @@ class MangaFoxPlugin extends Plugin
 		request.onStatus = function (i:Int)
 			{
 				if (i != 200)
-					throw "http 404";
+				{
+					throw "Http Error #404";
+				}
 			};
 		request.request();
 		
@@ -37,7 +39,7 @@ class MangaFoxPlugin extends Plugin
 		}
 		catch (e:Dynamic)
 		{
-			return "";
+			throw "Http Error #404";
 		}
 	}
 	

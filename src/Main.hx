@@ -74,7 +74,10 @@ class Main
 			
 			if (m.downloadStatus == 1)
 			{
-				m.downloadStatus = 2;
+				if (m.pluginName == "None")
+					m.downloadStatus = 0;
+				else
+					m.downloadStatus = 2;
 				m.update();
 			 }
 		}

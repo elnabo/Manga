@@ -49,12 +49,10 @@ class Download
 			return true;
 			
 		try
-		{
-			var h:Http = new Http(url);
-			
-			
+		{			
 			// Test if server accept range request
-			var res:Pair<Bool,Int> = acceptRange(url);
+			var res:Pair<Bool,Int> = acceptRange(url);			
+			
 			var length:Int = res.v;
 			// Invalid file
 			if (length == 0)
@@ -85,11 +83,11 @@ class Download
 					var t = Thread.create(function()
 					{
 						var main:Thread = Thread.readMessage(true);
-						var h:Http = new Http(url);
+						var http:Http = new Http(url);
 						var p:Pair<Int,Int> = range.pop(true);
-						h.addHeader("Range","bytes="+p.k+"-"+p.v);
-						h.request();
-						var content:PartialContent = new PartialContent(Bytes.ofString(h.responseData),p.k,p.v);
+						http.addHeader("Range","bytes="+p.k+"-"+p.v);
+						http.request();
+						var content:PartialContent = new PartialContent(Bytes.ofString(http.responseData),p.k,p.v);
 						deque.push(content);
 						main.sendMessage(true);
 					});
@@ -238,7 +236,7 @@ class Download
 						haveDownload = true;
 					}
 					catch ( e : Dynamic )
-					{
+					{	
 						// stop only if 404 else restart the page
 						if (e == "Http Error #404")
 							break;

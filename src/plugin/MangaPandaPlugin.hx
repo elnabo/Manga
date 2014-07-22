@@ -21,7 +21,7 @@ class MangaPandaPlugin extends Plugin
 		var url:String = mainURL + manga + "/" + chap + "/" + page;
 		var doc:String = Http.requestUrl(url);
 		if (doc.indexOf("<h1>404 Not Found</h1>",doc.length-25) != -1)
-			throw "http 404";
+			throw "Http Error #404";
 		
 		try
 		{
@@ -30,7 +30,7 @@ class MangaPandaPlugin extends Plugin
 		}
 		catch (e:Dynamic)
 		{
-			return "";
+			throw "Http Error #404";
 		}
 	}
 	
