@@ -82,7 +82,7 @@ class UIMain
 			{
 				if (mFrame.isIconized() || !mFrame.isActive())
 				{
-					Sys.sleep(1);
+					Sys.sleep(0.1);
 					wx.App.wakeUpIdle();
 				}
 			});
@@ -134,6 +134,11 @@ class UIMain
 		mFrame.handle(id++, function (_) 
 			{
 				new DownloadStatusDialog(mFrame,null,"Downloads status",{width:300, height:200});
+			});
+		status.append(id,"Mangas", "Check your mangas");
+		mFrame.handle(id++, function (_) 
+			{
+				new MangaStatusDialog(mFrame,null,"Manga status",{width:300, height:200});
 			});
 		menu.append(status,"Status");
 		

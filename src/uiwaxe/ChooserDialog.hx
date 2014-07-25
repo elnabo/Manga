@@ -24,7 +24,7 @@ class ChooserDialog extends Dialog
 		onClose = function(_) { inParent.enable(); destroy();}
 		
 		var names:Array<String> = new Array<String>();
-		for (m in Manga.all())
+		for (m in Manga.sorted())
 		{
 			if (m.lastChapterDownloaded > 0)
 				names.push(((m.recentDownload == 1) ? "[new] " : "") +m.rawName);

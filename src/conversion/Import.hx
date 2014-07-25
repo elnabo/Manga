@@ -29,23 +29,23 @@ class Import
 		if (manga == null || chapter < 1 || !FileSystem.exists(file))
 			return -1;
 			
-		var db_manga = manga.toLowerCase().split(" ").join("_");
-		var db_entry = Manga.get(manga);
+		var db_entry = Manga.findSimilar(manga);
 		if (db_entry == null)
 		{
-			db_entry = new Manga(manga,db_manga);
+			db_entry = new Manga(manga,chapter);
 			db_entry.downloadStatus = 0;
 			db_entry.insert();
-			FileSystem.createDirectory(Main.mangaPath + db_manga);
+			FileSystem.createDirectory(Main.mangaPath + db_entry.name);
 		}
 		
-		var path = Main.mangaPath + db_manga + "/" + StringTools.lpad(""+chapter,"0",4) + "/";
+		var path = Main.mangaPath + db_entry.name + "/" + StringTools.lpad(""+chapter,"0",4) + "/";
 		FileSystem.createDirectory(path);
 
 		for (entry in Reader.readZip(File.read(file)))
 		{
 			File.saveBytes(path+entry.fileName, entry.data);
 		}
+		
 		return 0;
 	}
 	

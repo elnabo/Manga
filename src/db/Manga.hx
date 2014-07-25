@@ -39,10 +39,10 @@ class Manga extends Object
 	
 	private static var m:Mutex = new Mutex();
 	
-	public function new(name:String,rawName:String,?lastChapterDownloaded:Int=0, ?plugin:String="None")
+	public function new(rawName:String,?lastChapterDownloaded:Int=0, ?plugin:String="None")
 	{
 		super();
-		this.name = name;
+		name = rawToFolder(rawName);
 		this.rawName = rawName;
 		this.lastChapterDownloaded = lastChapterDownloaded;
 		lastChapterRead = 0;
@@ -73,6 +73,17 @@ class Manga extends Object
 		var l = manager.all();
 		m.release();
 		return l;	
+	}
+	
+	public static function sorted(?sort:Manga->Manga->Int=null):Array<Manga>
+	{
+		var a = Lambda.array(Manga.all());
+		if (sort == null)
+			a.sort(function(a,b) return Reflect.compare(a.rawName.toLowerCase(),b.rawName.toLowerCase()));
+		else
+			a.sort(sort);
+		return a;
+		
 	}
 	
 	public static function get(manga:String):Manga
@@ -113,11 +124,48 @@ class Manga extends Object
 			));
 	}
 	
+	public function rename(newRaw:String)
+	{
+		var sim = findSimilar(newRaw);
+		if (sim == this)
+		{
+			rawName = newRaw;
+			return;
+		}
+		
+		if ( sim != null)
+			return;
+			
+		var tmp = rawToFolder(newRaw);
+		var newPath = Main.mangaPath + tmp;
+		if (FileSystem.exists(newPath))
+			return;
+			
+		FileSystem.rename(Main.mangaPath+name, newPath);
+		name = tmp;
+		rawName = newRaw;
+		
+	}
+	
 	public function chapterExists(chapter:Int)
 	{
 		var path = Main.mangaPath+name+"/"+StringTools.lpad(""+chapter,"0",4);
 		return FileSystem.exists(path) && FileSystem.isDirectory(path);
 	}
+	
+	public function remove()
+	{
+		try
+		{
+			Utility.deleteRecursive(Main.mangaPath+name);
+		}
+		catch (e:Dynamic) {trace(e);}
+		m.acquire();
+		delete();
+		m.release();
+	}
+	
+	public inline static function rawToFolder(s:String):String { return s.toLowerCase().split(" ").join("_");}
 	
 	public static var manager = new Manager<Manga>(Manga);
 }

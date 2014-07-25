@@ -11,9 +11,6 @@ import sys.io.File;
 import sys.io.FileOutput;
 import sys.FileSystem;
 
-//~ import plugin.Plugin;
-//~ import plugin.*;
-
 #if cpp
 import cpp.vm.Deque;
 import cpp.vm.Thread;
@@ -31,8 +28,6 @@ class Error
 
 class Download
 {
-	//~ private static var helper:Plugin = new MangaPandaPlugin();//MangaReaderPlugin();
-	//~ private static var helper:Plugin = new MangaFoxPlugin();//MangaReaderPlugin();
 	private static var activeConnections:Int = 0;
 	private static var maxActiveConnections:Int = 2;
 	private static var currentDownloads:Array<String> = new Array<String>();
@@ -183,11 +178,10 @@ class Download
 		if (!helper.exists())
 			return;
 			
-		var db_manga = manga.toLowerCase().split(" ").join("_");
-		var db_value:Manga = Manga.get(db_manga);
+		var db_value:Manga = Manga.findSimilar(manga);
 		if (db_value == null)
 		{
-			db_value = new Manga(db_manga, manga,(startChapter == 0) ? 0 : startChapter - 1, plugin);
+			db_value = new Manga(manga,(startChapter == 0) ? 0 : startChapter - 1, plugin);
 			db_value.insert();
 		}
 		else if (db_value.pluginName == "None")
@@ -215,7 +209,7 @@ class Download
 		var haveDownload = false;
 		while (helper.doesChapterExists(chap))
 		{
-			var directory:String = Main.mangaPath + db_manga+"/"+StringTools.lpad(""+chap,"0",4);
+			var directory:String = Main.mangaPath + db_value.name+"/"+StringTools.lpad(""+chap,"0",4);
 			FileSystem.createDirectory(directory);
 			try
 			{
