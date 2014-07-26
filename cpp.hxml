@@ -4,4 +4,5 @@
 -lib waxe
 -resource assets/logo64.ico@logo
 -D no_console
+-D debug
 -cpp bin2

@@ -38,10 +38,15 @@ class ImportDialog extends Dialog
 				names.push(m.rawName);
 		}
 				
-		var chooser = Button.create(this,null, "Choose a cbz",{x:20,y:15},{width:100,height:30},null);
-		var fileName = StaticText.create(this,null,"",{x:130,y:20},{width:100,height:20},Alignment.wxALIGN_LEFT);
-		var mangaInput = TextCtrl.create(this,null,null,{x:22,y:60},{width:150, height:20},null);
-		var chapterInput = TextCtrl.create(this,null,null,{x:175,y:60},{width:100, height:20},null);
+		var chooser = Button.create(this,null, "Choose a cbz",{x:10,y:15},{width:100,height:30},null);
+		var fileName = StaticText.create(this,null,"",{x:120,y:20},{width:100,height:20},Alignment.wxALIGN_LEFT);
+		
+		StaticText.create(this,null,"Chapter name", {x:10, y:60}, {width:100,height:30},null);
+		var mangaInput = TextCtrl.create(this,null,null,{x:112,y:60},{width:150, height:20},null);
+		
+		
+		StaticText.create(this,null,"Chapter number",{x:10,y:90}, {width:100,height:30},null);
+		var chapterInput = TextCtrl.create(this,null,null,{x:112,y:90},{width:150, height:20},null);
 		
 		chooser.onClick = function(_)
 			{
@@ -73,11 +78,17 @@ class ImportDialog extends Dialog
 						chapterInput.value = ""+intValue;
 					var manga = Manga.get(s.join("_"));
 					if (manga != null)
+					{
 						mangaInput.value = manga.rawName;
+					}
+					else
+					{
+						mangaInput.value = Lambda.map(s, function (e:String) { return e.charAt(0).toUpperCase() + e.substring(1).toLowerCase();}).join(" ");
+					}
 				}
 			}
 		
-		var validate = Button.create(this,null, "Validate",{x:45,y:85},{width:100,height:30},null);
+		var validate = Button.create(this,null, "Validate",{x:35,y:130},{width:100,height:30},null);
 		validate.onClick = function(_)
 			{
 				
@@ -85,7 +96,7 @@ class ImportDialog extends Dialog
 				close();
 			}
 		
-		var cancel = Button.create(this,null, "Cancel",{x:155,y:85},{width:100,height:30},null);
+		var cancel = Button.create(this,null, "Cancel",{x:145,y:130},{width:100,height:30},null);
 		cancel.onClick = function(_)
 			{
 				close();

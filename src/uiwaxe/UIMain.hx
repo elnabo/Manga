@@ -125,7 +125,7 @@ class UIMain
 		convert.append(id,"Import", "Import a manga");
 		mFrame.handle(id++, function (_) 
 			{
-				new ImportDialog(mFrame,null,"Import a manga",{width:300,height:160});
+				new ImportDialog(mFrame,null,"Import a manga",{width:300,height:220});
 			});
 		menu.append(convert,"Convert");
 		
