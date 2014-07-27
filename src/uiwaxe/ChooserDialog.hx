@@ -32,24 +32,22 @@ class ChooserDialog extends Dialog
 		
 		var mangaList = Choice.create(this,null,{x:22,y:20},{width:inSize.width-50,height:20},names);
 		
-		var chapterList = Choice.create(this,null,{x:47,y:90},{width:inSize.width-100,height:20},[]);
+		var chapterList:Choice = null;
 		if (viewer._manga != null)
 		{
 			var manga = Manga.get(viewer._manga);
 			if (manga != null)
 			{
-				if (manga.lastChapterDownloaded != 0)
-				{
-					for (chap in manga.getChapterList())
-					{
-						chapterList.append(chap);
-					}
-				}
-				
+				chapterList = Choice.create(this,null,{x:47,y:90},{width:inSize.width-100,height:20},manga.getChapterList());
+								
 				mangaList.selection = mangaList.find_string(manga.rawName);
 				chapterList.selection = chapterList.find_string(StringTools.lpad(""+viewer._chap,"0",4));
 			}
 		}		
+		else
+		{
+			chapterList = Choice.create(this,null,{x:47,y:90},{width:inSize.width-100,height:20},[]);
+		}
 		
 		var lastRead = RadioButton.create(this,null,"Continue from last read",{x:20,y:50},null,RadioButton.wxRB_GROUP);
 		var fromChapter = RadioButton.create(this,null,"Go to",{x:20,y:70},null,0);
@@ -57,42 +55,43 @@ class ChooserDialog extends Dialog
 		
 		
 		mangaList.setHandler(wx.EventID.CHOICE, function (e:Dynamic)
-			{
-				chapterList.clear();
-				var manga = Manga.getFromRaw(valueToName(e.string));
-				
-				if (manga == null || manga.lastChapterDownloaded == 0)
-				{					
-					return;
-				}
-				var list = manga.getChapterList();
-				if (list==null || list.length == 0)
-				{
-					e.skip = true;
-					return;
-				}
-				for (chapter in list)
-				{
-					chapterList.append(chapter);
-				}
-				
-				var chapSelected = -1;
-				if (viewer._manga == manga.rawName)
-				{
-					chapSelected = viewer._chap;
-				}
-				else
-				{
-					chapSelected = Std.int(Math.max(manga.currentChapterRead,Std.parseInt(Utility.unLPad(list[0]))));
-				}
-				chapterList.selection = chapterList.find_string(StringTools.lpad(""+chapSelected,"0",4));
-				
-			});
+		{
+			var manga = Manga.getFromRaw(valueToName(e.string));
 			
+			if (manga == null || manga.lastChapterDownloaded == 0)
+			{					
+				return;
+			}
+			var list = manga.getChapterList();
+			if (list==null || list.length == 0)
+			{
+				e.skip = true;
+				return;
+			}
+			chapterList.destroy();
+			chapterList = Choice.create(this,null,{x:47,y:90},{width:inSize.width-100,height:20},manga.getChapterList());
 			chapterList.setHandler(wx.EventID.CHOICE, function (e:Dynamic)
 			{
 				fromChapter.value = true;	
 			});
+			
+			var chapSelected = -1;
+			if (viewer._manga == manga.rawName)
+			{
+				chapSelected = viewer._chap;
+			}
+			else
+			{
+				chapSelected = Std.int(Math.max(manga.currentChapterRead,Std.parseInt(Utility.unLPad(list[0]))));
+			}
+			chapterList.selection = chapterList.find_string(StringTools.lpad(""+chapSelected,"0",4));
+			
+		});
+			
+		chapterList.setHandler(wx.EventID.CHOICE, function (e:Dynamic)
+		{
+			fromChapter.value = true;	
+		});
 			
 		var validate = Button.create(this,null, "Validate",{x:45,y:130},{width:100,height:30},null);
 		validate.onClick = function(_)

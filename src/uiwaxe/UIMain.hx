@@ -69,14 +69,13 @@ class UIMain
 				
 			});
 			
-		mFrame.setHandler(EventID.ICONIZE,
-			function(e:Dynamic)
-			{
-				//Do not pause
-			});
+		//~ mFrame.setHandler(EventID.ICONIZE,
+			//~ function(e:Dynamic)
+			//~ {
+				//~ //Do not pause
+			//~ });
 			
 			
-			// Works but cpu bound
 		mFrame.setHandler(EventID.IDLE,
 			function(e:Dynamic)
 			{
