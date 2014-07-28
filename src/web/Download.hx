@@ -22,7 +22,7 @@ import neko.vm.Thread;
 class Error
 {
 	public static var invalidName(default,null):String = "Invalid manga name";
-	public static var notAvailable(default,null):String = "This manga isn't available on ";
+	public static var notAvailable(default,null):String = "This manga isn't available on\n ";
 	public static var plugin(default,null):String = "This plugin isn't present";
 }
 
